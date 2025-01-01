@@ -72,6 +72,18 @@ const HomePageScreen = ({ navigation }) => {
                 >
                     <Text style={styles.buttonText}>Delete Product</Text>
                 </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => navigation.navigate("AddVideo")}
+                >
+                    <Text style={styles.buttonText}>Add Video</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => navigation.navigate("DeleteVideo")}
+                >
+                    <Text style={styles.buttonText}>Delete Video</Text>
+                </TouchableOpacity>
 
 
             </View>

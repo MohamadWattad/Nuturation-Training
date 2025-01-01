@@ -20,6 +20,8 @@ import AddProductsPageScreen from "./src/screens/AddProductsPageScreen";
 import DeleteProducPageScreen from "./src/screens/DeleteProducPageScreen";
 import CartPageScreen from "./src/screens/CartPageScreen";
 import PaymentScreenPage from "./src/screens/PaymentScreenPage";
+import AddVideoPageScreen from "./src/screens/AddVideoPageScreen";
+import DeleteVideoPageScreen from "./src/screens/DeleteVideoPageScreen";
 const SwitchNavigator = createSwitchNavigator({
   ResolveAuth:ResolveAuthScreen,
   loginFlow:createStackNavigator({
@@ -37,6 +39,8 @@ const SwitchNavigator = createSwitchNavigator({
     DeleteProduct:DeleteProducPageScreen,
     Cart:CartPageScreen,
     Payment:PaymentScreenPage,
+    AddVideo:AddVideoPageScreen,
+    DeleteVideo:DeleteVideoPageScreen,
   }),
 });
 

@@ -39,6 +39,8 @@ const authReducer = (state, action) => {
             ...state,
             products: state.products.filter((product) => product.name !== action.payload),
         };
+    case 'addvideo':
+        return {...state , details:action.payload , errorMessage:""};
     default:
       return state;
   }
@@ -168,6 +170,34 @@ const updatedetails = (dispatch) => {
         }
     }
 };
+
+const AddVideo = (dispatch) => {
+    return async ({ title , gifUrl , muscleGroup , description , duration }) => {
+        try {
+            if (!title || !gifUrl || !muscleGroup) {
+                dispatch({ type: 'add_error', payload: 'title and gifUtl and muscleGroup are required' });
+                return;
+            }
+            const token = await AsyncStorage.getItem('token');
+            if (!token) {
+                throw new Error('No token found');
+            }
+            const response = await trackerApi.post(
+                'video',
+                {title , gifUrl , muscleGroup , description , duration},
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                dispatch({type:'addvideo' , payload:response.data});
+
+        }catch(err){
+            dispatch({type:'add_error' , payload:'Failed to add video. Please try again.'});
+        }
+    }
+}
+
 
 const addproducts = (dispatch) => {
     return async({name ,description , price   , image  ,  stock , category }) => {
@@ -358,6 +388,7 @@ export const { Provider, Context } = createDataContext(
            deleteproducts, 
            getcart,
            addToCart,
+           AddVideo,
         },
   { token:null ,errorMessage:'', userName: '' , chatHistory:[],products:[] , cart:[]}
 );

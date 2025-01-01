@@ -137,6 +137,22 @@ router.post('/video', async (req, res) => {
     }
 }); 
 
+router.get('/video',requireAuth,async(req,res) => {
+    try{
+        const {title} = req.body;
+        if(!title) {
+            res.status(400).send({error:'Title is required to fetch the video.'});
+        }
+        const video = await Video.findOne({ title: title.trim() });
+
+        if (!video) {
+            return res.status(404).send({ error: `Video with title "${title}" not found` });
+        }
+        res.status(200).send({ message: 'Video fetched successfully', video });
+    }catch(err){
+        res.status(500).send({ error: 'Failed to fetch video', details: err.message });
+    }
+})
 // Get Cart
 router.get('/cart', requireAuth, async (req, res) => {
     try {
