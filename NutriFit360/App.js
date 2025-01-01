@@ -22,6 +22,8 @@ import CartPageScreen from "./src/screens/CartPageScreen";
 import PaymentScreenPage from "./src/screens/PaymentScreenPage";
 import AddVideoPageScreen from "./src/screens/AddVideoPageScreen";
 import DeleteVideoPageScreen from "./src/screens/DeleteVideoPageScreen";
+import ChestWorkoutPageScreen from "./src/screens/ChestWorkoutPageScreen";
+import BackWorkoutPageScreen from "./src/screens/BackWorkoutPageScreen"
 const SwitchNavigator = createSwitchNavigator({
   ResolveAuth:ResolveAuthScreen,
   loginFlow:createStackNavigator({
@@ -41,6 +43,8 @@ const SwitchNavigator = createSwitchNavigator({
     Payment:PaymentScreenPage,
     AddVideo:AddVideoPageScreen,
     DeleteVideo:DeleteVideoPageScreen,
+    ChestWorkout:ChestWorkoutPageScreen,
+    BackWorkout:BackWorkoutPageScreen,
   }),
 });
 

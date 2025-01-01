@@ -137,22 +137,29 @@ router.post('/video', async (req, res) => {
     }
 }); 
 
-router.get('/video',requireAuth,async(req,res) => {
-    try{
-        const {title} = req.body;
-        if(!title) {
-            res.status(400).send({error:'Title is required to fetch the video.'});
+router.get('/video', async (req, res) => {
+    try {
+        const { muscleGroup } = req.query; // Extract query parameter
+        if (!muscleGroup) {
+            return res.status(400).send({ error: 'Muscle group is required to fetch videos.' });
         }
-        const video = await Video.findOne({ title: title.trim() });
 
-        if (!video) {
-            return res.status(404).send({ error: `Video with title "${title}" not found` });
+        const videos = await Video.find({ muscleGroup: muscleGroup.trim() });
+
+        if (videos.length === 0) {
+            return res.status(404).send({ error: `No videos found for ${muscleGroup} muscle group.` });
         }
-        res.status(200).send({ message: 'Video fetched successfully', video });
-    }catch(err){
-        res.status(500).send({ error: 'Failed to fetch video', details: err.message });
+
+        res.status(200).send({ message: `${muscleGroup} videos fetched successfully`, videos });
+    } catch (err) {
+        console.error('Error fetching videos:', err.message);
+        res.status(500).send({ error: 'Failed to fetch videos', details: err.message });
     }
-})
+});
+
+
+
+
 // Get Cart
 router.get('/cart', requireAuth, async (req, res) => {
     try {

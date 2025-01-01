@@ -41,6 +41,8 @@ const authReducer = (state, action) => {
         };
     case 'addvideo':
         return {...state , details:action.payload , errorMessage:""};
+    case 'getvideo':
+        return {...state , details:action.payload , errorMessage:""}
     default:
       return state;
   }
@@ -197,6 +199,40 @@ const AddVideo = (dispatch) => {
         }
     }
 }
+const getVideo = (dispatch) => {
+    return async (muscleGroup) => {
+        try {
+            if (!muscleGroup) {
+                throw new Error("Muscle group is required to fetch videos.");
+            }
+
+            const token = await AsyncStorage.getItem("token");
+            if (!token) {
+                throw new Error("No token found");
+            }
+
+            // Make the API request
+            const response = await trackerApi.get(
+                `/video?muscleGroup=${muscleGroup}`, // Pass muscleGroup as a query parameter
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            console.log("Fetched Videos:", response.data.videos);
+
+            // Dispatch the action to update the state
+            dispatch({ type: "getvideo", payload: response.data.videos });
+        } catch (err) {
+            console.error("Error fetching videos:", err.response?.data || err.message);
+            dispatch({ type: "add_error", payload: "Failed to fetch videos." });
+        }
+    };
+};
+
+
 
 
 const addproducts = (dispatch) => {
@@ -389,6 +425,7 @@ export const { Provider, Context } = createDataContext(
            getcart,
            addToCart,
            AddVideo,
+           getVideo,
         },
-  { token:null ,errorMessage:'', userName: '' , chatHistory:[],products:[] , cart:[]}
+  { token:null ,errorMessage:'', userName: '' , chatHistory:[],products:[] , cart:[] ,details: []}
 );

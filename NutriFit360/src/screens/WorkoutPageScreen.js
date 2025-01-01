@@ -14,14 +14,14 @@ const workouts = [
     title: "Chest Workout",
     description: "Build upper body strength.",
     thumbnail: "https://media.istockphoto.com/id/180200014/photo/a-man-lifting-weights-on-a-bench-press.jpg?s=1024x1024&w=is&k=20&c=iWQ26nOcn1Xc-fcrLxpsea0FgnewNXJlv-xfENMLWvQ=",
-    route: "ChestWorkoutPage", // Unique route for this workout
+    route: "ChestWorkout", // Unique route for this workout
   },
   {
     id: "2",
     title: "Back Workout",
     description: "Enhance back muscles and posture.",
     thumbnail: "https://w0.peakpx.com/wallpaper/693/11/HD-wallpaper-gym-doing-pull-ups-pull-ups-workout-back-body-building.jpg",
-    route: "BackWorkoutPage", // Unique route for this workout
+    route: "BackWorkout", // Unique route for this workout
   },
   {
     id: "3",
