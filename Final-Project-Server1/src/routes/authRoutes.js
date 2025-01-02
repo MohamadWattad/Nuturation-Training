@@ -157,8 +157,30 @@ router.get('/video', async (req, res) => {
     }
 });
 
+router.delete('/video', async (req, res) => {
+    try {
+        const { title } = req.body; // Extract title from the request body
+        console.log('Title received:', title); // Debug log
 
+        if (!title) {
+            return res.status(400).send({ error: 'Video title is required' });
+        }
 
+        // Find and delete the video by title
+        const deletedVideo = await Video.findOneAndDelete({ title });
+        if (!deletedVideo) {
+            return res.status(404).send({ error: `Video with title "${title}" not found` });
+        }
+
+        res.status(200).send({ 
+            message: `Video titled "${title}" deleted successfully`, 
+            video: deletedVideo 
+        });
+    } catch (error) {
+        console.error('Error deleting video:', error.message);
+        res.status(500).send({ error: 'Failed to delete video' });
+    }
+});
 
 // Get Cart
 router.get('/cart', requireAuth, async (req, res) => {

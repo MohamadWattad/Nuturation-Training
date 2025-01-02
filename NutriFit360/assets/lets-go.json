@@ -1,0 +1,18 @@
+{
+    "button": {
+        "color": "#ecf0f1",
+        "fontSize": "17px",
+        "backgroundColor": "#35ac50",
+        "border": "1px solid #3ecf5f",
+        "borderRadius": "5px",
+        "cursor": "pointer",
+        "padding": "10px",
+        "boxShadow": "0px 6px 0px #2b8f42",
+        "transition": "all 0.1s"
+    },
+    "buttonActive": {
+        "boxShadow": "0px 2px 0px #2b8f42",
+        "position": "relative",
+        "top": "2px"
+    }
+}

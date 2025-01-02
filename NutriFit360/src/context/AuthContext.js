@@ -42,7 +42,13 @@ const authReducer = (state, action) => {
     case 'addvideo':
         return {...state , details:action.payload , errorMessage:""};
     case 'getvideo':
-        return {...state , details:action.payload , errorMessage:""}
+        return {...state , details:action.payload , errorMessage:""};
+
+    case 'delete_video':
+        return {
+            ...state,
+            products: state.products.filter((product) => product.name !== action.payload),
+        }
     default:
       return state;
   }
@@ -58,7 +64,7 @@ const tryLocalSignin = dispatch => async () => {
         navigate('HomePage');
     }
     else{
-        navigate('Signin');
+        navigate('Intro');
     }
 }
 
@@ -232,7 +238,33 @@ const getVideo = (dispatch) => {
     };
 };
 
+const deleteVideo = (dispatch) => {
+    return async (title) => {
+        try{
+            const token = await AsyncStorage.getItem('token');
+            if(!token){
+                throw new Error('No token found');
+            }
+            const response = await trackerApi.delete('/video',{
+                headers:{
+                    Authorization: `Bearer ${token}`,
+                },
+                data:{ title },
+            });
+            console.log("Product deleted successfully:", response.data);
+            dispatch({ type: 'delete_video', payload: title });
 
+        }catch (err) {
+            console.error("Error deleting product:", err.message);
+
+            // Dispatch an error message to the state
+            dispatch({
+                type: 'add_error',
+                payload: 'Failed to delete video. Please try again.',
+            });
+    }
+} 
+}
 
 
 const addproducts = (dispatch) => {
@@ -426,6 +458,7 @@ export const { Provider, Context } = createDataContext(
            addToCart,
            AddVideo,
            getVideo,
+           deleteVideo,
         },
   { token:null ,errorMessage:'', userName: '' , chatHistory:[],products:[] , cart:[] ,details: []}
 );
