@@ -16,7 +16,6 @@ const HomePageScreen = ({ navigation }) => {
         };
         fetchName();
     }, []);
-
     return (
         <ImageBackground source={logo} style={styles.backgroundImage}>
             <View style={styles.container}>
@@ -25,7 +24,7 @@ const HomePageScreen = ({ navigation }) => {
                 ) : (
                     <Text style={styles.welcomeText}>Welcome, {state.userName}!</Text>
                 )}
-
+ 
                 <TouchableOpacity
                     style={styles.button}
                     onPress={() => navigation.navigate("ProfilePage")}
@@ -57,33 +56,40 @@ const HomePageScreen = ({ navigation }) => {
                 >
                     <Text style={styles.buttonText}>Chat</Text>
                 </TouchableOpacity>
+                {console.log(state.role)}
+                {state.role === 'admin' ? (
+    <View>
+        <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate("AddProducts")}
+        >
+            <Text style={styles.buttonText}>Add Product</Text>
+        </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => navigation.navigate("AddProducts")}
-                >
-                    <Text style={styles.buttonText}>AddProduct</Text>
-                </TouchableOpacity>
+        <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate("DeleteProduct")}
+        >
+            <Text style={styles.buttonText}>Delete Product</Text>
+        </TouchableOpacity>
 
+        <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate("AddVideo")}
+        >
+            <Text style={styles.buttonText}>Add Video</Text>
+        </TouchableOpacity>
 
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => navigation.navigate("DeleteProduct")}
-                >
-                    <Text style={styles.buttonText}>Delete Product</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => navigation.navigate("AddVideo")}
-                >
-                    <Text style={styles.buttonText}>Add Video</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => navigation.navigate("DeleteVideo")}
-                >
-                    <Text style={styles.buttonText}>Delete Video</Text>
-                </TouchableOpacity>
+        <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate("DeleteVideo")}
+        >
+            <Text style={styles.buttonText}>Delete Video</Text>
+        </TouchableOpacity>
+    </View>
+) : null}
+
+                
 
 
             </View>

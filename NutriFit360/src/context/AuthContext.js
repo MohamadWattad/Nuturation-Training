@@ -16,7 +16,7 @@ const authReducer = (state, action) => {
     case 'clear_error_message':
         return {...state,errorMessage:''};
     case 'getname':
-        return {...state,userName: `${action.payload.name} ${action.payload.lastName}` ,  errorMessage:""};
+        return {...state,userName: `${action.payload.name} ${action.payload.lastName}` ,role:`${action.payload.role}`,  errorMessage:""};
     case 'getdetails':
         return {...state ,details:action.payload };
     case 'updatedetails':
@@ -125,7 +125,7 @@ const getname = (dispatch) => {
                  
             })
             console.log("User Data:", response.data);
-            dispatch({type:'getname' , payload:{ name: response.data.name, lastName: response.data.lastName }});
+            dispatch({type:'getname' , payload:{ name: response.data.name, lastName: response.data.lastName,role:response.data.role }});
         }catch(err){
             dispatch({type:'add_error',payload:'Something went wrong'});
         }
@@ -460,5 +460,5 @@ export const { Provider, Context } = createDataContext(
            getVideo,
            deleteVideo,
         },
-  { token:null ,errorMessage:'', userName: '' , chatHistory:[],products:[] , cart:[] ,details: []}
+  { token:null ,errorMessage:'', userName: '' ,role:'', chatHistory:[],products:[] , cart:[] ,details: []}
 );

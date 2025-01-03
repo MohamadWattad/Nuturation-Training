@@ -65,6 +65,7 @@ router.get('/getname', requireAuth, async (req, res) => {
         res.send({
             name: user.name,
             lastName: user.lastName,
+            role: user.role,
         });
     } catch (err) {
         console.error('Error fetching user data:', err.message);

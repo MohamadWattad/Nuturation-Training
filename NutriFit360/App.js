@@ -24,13 +24,13 @@ import AddVideoPageScreen from "./src/screens/AddVideoPageScreen";
 import DeleteVideoPageScreen from "./src/screens/DeleteVideoPageScreen";
 import ChestWorkoutPageScreen from "./src/screens/ChestWorkoutPageScreen";
 import BackWorkoutPageScreen from "./src/screens/BackWorkoutPageScreen"
-import Intro from "./src/screens/Intro";
+import IntroPage from "./src/screens/IntroPage";
 
 
 const SwitchNavigator = createSwitchNavigator({
   ResolveAuth:ResolveAuthScreen,
   loginFlow:createStackNavigator({
-    Intro:Intro,
+    Intro:IntroPage,
     Signup:SignupScreen,
     Signin:SigninScreen,
     ProfileDetails:ProfileSetupScreen,

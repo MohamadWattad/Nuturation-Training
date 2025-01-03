@@ -18,7 +18,7 @@ const Intro = ({ navigation }) => {
                         {/* Lottie Animation - Loops Continuously */}
                         <LottieView
                             ref={animationRef}
-                            source={require('../../assets/animation.json')} // Path to your animation file
+                            source={require('../../assets/Animation.json')} // Path to your animation file
                             autoPlay
                             loop={true} // Set to true to enable infinite looping
                             style={styles.animation}
