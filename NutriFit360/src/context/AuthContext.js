@@ -49,6 +49,9 @@ const authReducer = (state, action) => {
             ...state,
             products: state.products.filter((product) => product.name !== action.payload),
         }
+    case 'forgotpassword':
+        return {...state , token:action.payload , errorMessage:"" }
+    
     default:
       return state;
   }
@@ -367,7 +370,7 @@ const getcart = (dispatch) => {
 };
 }
 const addToCart = (dispatch) => {
-    return async (productName) => {
+    return async (productName , setProducts) => {
         try {
             const token = await AsyncStorage.getItem("token");
             if (!token) {
@@ -386,7 +389,14 @@ const addToCart = (dispatch) => {
             );
 
             console.log("Product added to cart:", response.data);
-
+            
+            setProducts((prevProducts) =>
+                prevProducts.map((product) =>
+                    product.name === productName
+                        ? { ...product, stock: Math.max(0, product.stock - 1) } // Prevent negative stock
+                        : product
+                )
+            );
             // Optionally, dispatch the updated cart or product data
             dispatch({ type: "get_cart", payload: response.data.cart.products });
         } catch (err) {
@@ -398,6 +408,43 @@ const addToCart = (dispatch) => {
         }
     };
 };
+
+const forgotpassword = (dispatch) => {
+    return async (email) => {
+        try{
+            const response = await trackerApi.post('/resetpassword',{email});
+            console.log("Reset Password Response:", response.data);
+            
+            dispatch({type:"forgotpassword",payload:"A reset link has been sent to your email."})
+        }catch(err){
+            console.error("Error resetting password:", err.message);
+            dispatch({type:"add_error" , payload:"Failed to reset password. Please try again."})
+        }
+    }
+}
+
+const clearCart = ( dispatch) => {
+    return async () => {
+        try{
+            const token = await AsyncStorage.getItem("token");
+            if (!token) {
+                throw new Error("No token found");
+            }
+            await trackerApi.delete("/clear-cart", {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            dispatch({ type: "get_cart", payload: [] });
+            console.log("Cart cleared successfully");
+
+
+        }catch (err) {
+            console.error("Error clearing cart:", err.message);
+            dispatch({ type: "add_error", payload: "Failed to clear cart. Please try again." });
+        }
+    }
+}
 
 
 const chatpage = (dispatch) => {
@@ -459,6 +506,8 @@ export const { Provider, Context } = createDataContext(
            AddVideo,
            getVideo,
            deleteVideo,
+           forgotpassword,
+           clearCart,
         },
   { token:null ,errorMessage:'', userName: '' ,role:'', chatHistory:[],products:[] , cart:[] ,details: []}
 );

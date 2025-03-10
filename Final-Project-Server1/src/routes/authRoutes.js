@@ -39,19 +39,35 @@ router.post('/signup', async (req, res) => {
 // Signin Route
 router.post('/signin', async (req, res) => {
     const { email, password } = req.body;
+
     if (!email || !password) {
-        return res.status(422).send({ error: 'Must provide email and password' });
+        return res.status(400).json({ error: 'Must provide email and password' });
     }
+
     const user = await User.findOne({ email });
     if (!user) {
-        return res.status(422).send({ error: 'Invalid password or email' });
+        return res.status(401).json({ error: 'Invalid email or password' });
     }
+
     try {
-        await user.comparePassword(password);
-        const token = jwt.sign({ userId: user._id }, 'My_Secret_Key');
-        res.send({ token });
+        console.log("Entered Password (from user):", password);
+        console.log("Stored Hashed Password (from DB):", user.password);
+
+        // 🔹 Compare Entered Password with Hashed Password
+        const isMatch = await bcrypt.compare(password, user.password);
+        console.log("Password Match:", isMatch); // This will print true or false
+
+        if (!isMatch) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+
+        const token = jwt.sign({ userId: user._id }, 'My_Secret_Key', { expiresIn: '7d' });
+
+        res.json({ token, message: 'Login successful' });
+
     } catch (err) {
-        return res.status(422).send({ error: 'Invalid password or email' });
+        console.error("Login Error:", err.message);
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 
@@ -117,6 +133,7 @@ router.delete('/products', requireAuth, async (req, res) => {
         res.status(500).send({ error: 'Failed to delete product' });
     }
 });
+//Post videos (training)
 router.post('/video', async (req, res) => {
     try {
         const { title, gifUrl, muscleGroup, description, duration } = req.body;
@@ -227,6 +244,10 @@ router.post('/add-to-cart', requireAuth, async (req, res) => {
         if (!product) {
             return res.status(404).send({ error: 'Product not found' });
         }
+        if (product.stock <= 0) {
+            return res.status(400).send({ error: 'Out of stock' });
+        }
+
         let cart = await Cart.findOne({ userId: req.user._id });
         if (!cart) {
             cart = new Cart({ userId: req.user._id, products: [] });
@@ -241,6 +262,8 @@ router.post('/add-to-cart', requireAuth, async (req, res) => {
                 quantity: 1,
             });
         }
+        product.stock -= 1;
+        await product.save();
         await cart.save();
         res.status(200).send({ message: 'Product added to cart successfully', cart });
     } catch (error) {
@@ -249,12 +272,28 @@ router.post('/add-to-cart', requireAuth, async (req, res) => {
     }
 });
 
+router.delete('/clear-cart' , requireAuth , async(req,res)=>{
+    try{
+        let cart = await Cart.findOne({ userId: req.user._id });
+        if (!cart) {
+            return res.status(404).send({ error: "Cart is empty !" });
+        }
+        cart.products = [];
+        await cart.save();
+        res.status(200).send({ message: "Cart cleared successfully" });
+
+    }catch (error) {
+        console.error("Error clearing cart:", error.message);
+        res.status(500).send({ error: "Failed to clear cart" });
+    }
+})
+
 // Nodemailer Setup
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'nutri_fit360@hotmail.com',
-        pass: 'm7mdgoro159852',
+        user: 'abotalebwattad@gmail.com',
+        pass: 'jqfn uelc gttl makx',
     },
 });
 
@@ -264,22 +303,35 @@ router.post('/resetpassword', async (req, res) => {
     try {
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(404).send({ error: 'User not found' });
+            return res.status(404).json({ error: 'User not found' });
         }
+
         const tempPassword = generatePassword();
-        const hashedPassword = await bcrypt.hash(tempPassword, 10);
-        user.password = hashedPassword;
-        await user.save();
+        console.log("Generated Temporary Password (sent to email):", tempPassword);
+
+        user.password = tempPassword;
+        await user.save(); // The pre('save') hook will automatically hash the password
+        console.log("Password Updated in DB Successfully!");
+
+        // 🔹 Retrieve Updated Password to Verify Hashing
+        const verifyUser = await User.findOne({ email });
+        console.log("Stored Hashed Password in DB (After Save):", verifyUser.password);
+
+        // 🔹 Send Email with New Password
         await transporter.sendMail({
+            from: process.env.EMAIL_USER,
             to: user.email,
             subject: 'Password Reset Notification',
-            text: `Your temporary password is: ${tempPassword}. Please change it after logging in.`,
+            text: `Your password is: ${tempPassword}. Please log in with your new password.`,
         });
-        res.status(200).send({ message: 'Password reset successfully. Check your email for the new password.' });
+
+        res.status(200).json({ message: 'Password reset successfully. Check your email for the new password.' });
+
     } catch (error) {
         console.error('Error resetting password:', error.message);
-        res.status(500).send({ error: 'Failed to reset password' });
+        res.status(500).json({ error: 'Failed to reset password. Please try again later.' });
     }
 });
+
 
 module.exports = router;

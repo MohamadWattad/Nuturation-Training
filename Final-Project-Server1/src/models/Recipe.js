@@ -27,7 +27,7 @@ const RecipeSchema = new mongoose.Schema({
     }, // Fats in grams
     mealType: { 
         type: String, 
-        enum: ['breakfast', 'lunch', 'dinner', 'snack'], 
+        // enum: ['breakfast', 'lunch', 'dinner', 'snack'], 
         required: false 
     }, // Meal type
     instructions: { 

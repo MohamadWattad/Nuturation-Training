@@ -25,7 +25,7 @@ import DeleteVideoPageScreen from "./src/screens/DeleteVideoPageScreen";
 import ChestWorkoutPageScreen from "./src/screens/ChestWorkoutPageScreen";
 import BackWorkoutPageScreen from "./src/screens/BackWorkoutPageScreen"
 import IntroPage from "./src/screens/IntroPage";
-
+import ForgotPasswordScreenPage from "./src/screens/ForgotPasswordScreenPage";
 
 const SwitchNavigator = createSwitchNavigator({
   ResolveAuth:ResolveAuthScreen,
@@ -49,6 +49,7 @@ const SwitchNavigator = createSwitchNavigator({
     DeleteVideo:DeleteVideoPageScreen,
     ChestWorkout:ChestWorkoutPageScreen,
     BackWorkout:BackWorkoutPageScreen,
+    ForgotPassword:ForgotPasswordScreenPage,
   }),
 });
 

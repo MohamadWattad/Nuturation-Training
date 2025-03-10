@@ -51,7 +51,9 @@ const SigninScreen = ({ navigation }) => {
           />
         </Spacer>
         <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>  
             <Text style = {styles.footerText}>Forgot Password? </Text>
+        </TouchableOpacity>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
           <Text style={styles.footerText}>Don't have an account? Sign up</Text>

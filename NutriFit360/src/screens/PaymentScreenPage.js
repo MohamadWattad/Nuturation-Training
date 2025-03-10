@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -8,19 +8,29 @@ import {
   Alert,
   Dimensions,
 } from "react-native";
+import { Context as AuthContext } from "../context/AuthContext";
 
-const PaymentScreenPage = () => {
+const PaymentScreenPage = ( {navigation }) => {
+  const {clearCart} = useContext(AuthContext);
   const [cardNumber, setCardNumber] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [cvv, setCvv] = useState("");
   const [cardHolderName, setCardHolderName] = useState("");
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     if (!cardNumber || !expiryDate || !cvv || !cardHolderName) {
       Alert.alert("Error", "Please fill out all fields");
       return;
     }
-    Alert.alert("Success", "Payment processed successfully!");
+    try{
+        await clearCart();
+        console.log("Cart cleared successfully");
+        Alert.alert("Success", "Payment processed successfully!");
+        navigation.navigate("HomePage")
+    }catch (error) {
+      console.error("Error clearing cart:", error.message);
+      Alert.alert("Error", "Failed to clear cart. Please try again.");
+    }
   };
 
   return (

@@ -26,7 +26,7 @@ const ShopPageScreen = ({ navigation }) => {
             setFilteredProducts(filtered);
         }
     }, [searchText, state.products]);
-
+    
     const handleAddToCart = async (productName) => {
         try {
             await addToCart(productName); // Call the context function to add the product to the cart
@@ -67,6 +67,7 @@ const ShopPageScreen = ({ navigation }) => {
                         <Image source={{ uri: item.image }} style={styles.image} resizeMode="contain" />
                         <Text style={styles.name}>{item.name}</Text>
                         <Text style={styles.price}>${item.price}</Text>
+                        <Text>Amount:{item.stock}</Text>
                         <TouchableOpacity
                             style={styles.button}
                             onPress={() => handleAddToCart(item.name)} // Pass product name to handleAddToCart
@@ -88,6 +89,13 @@ const ShopPageScreen = ({ navigation }) => {
 };
 
 const screenWidth = Dimensions.get('window').width;
+
+// ShopPageScreen.navigationOptions = () => {
+//     return {
+//       headerShown: false,
+//     };
+//   };
+
 
 const styles = StyleSheet.create({
     container: {
