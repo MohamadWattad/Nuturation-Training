@@ -289,6 +289,28 @@ router.put('/update-stock', requireAuth , async(req,res) => {
         res.status(500).send({ error: 'Failed to update stock' });
     }
 })
+//Decrease from the amount of the product
+
+router.put('/decrease-stock', requireAuth , async(req,res)=> {
+    const {productName , stockToRemove} = req.body;
+    
+    try{
+        const product = await Products.findOne({name:productName});
+
+        if(!product) {
+            return res.status(404).send({error:'Product not found'});
+        }
+        if (product.stock < stockToRemove) {
+            return res.status(400).send({ error: 'Not enough stock available' });
+        }
+        product.stock -= stockToRemove ;
+        await product.save();
+        res.status(200).send({message:`Stock removed successfully. New stock: ${product.stock}`, product})
+    }catch(error){
+        console.error('Error removing from stock' , error.message);
+        res.status(500).send({error:'Faild remove from the stock'});
+    }
+})
 
 
 

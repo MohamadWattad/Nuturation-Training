@@ -435,6 +435,33 @@ const updateStock = (dispatch) => {
     }   
     }
 }
+//Decrease amount for store
+const decreaseStock = (dispatch) => {
+    return async (productName , stockToRemove) => {
+        try{
+            const token = await AsyncStorage.getItem("token");
+            
+            if(!token){
+                throw new Error("No token found");
+            }
+            const response = await trackerApi.put(
+                '/decrease-stock',
+                {productName , stockToRemove},
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+
+                }
+            )
+            console.log("Stock removed successfully:", response.data);
+            dispatch({ type:"getproducts" , payload: response.data.product});
+            return response.data;
+
+        }catch (err) {
+            console.error("Error removing from stock:", err.message);
+            return { error: "Failed to remove from stock. Please try again." };
+        }
+    }
+}
 
 const forgotpassword = (dispatch) => {
     return async (email) => {
@@ -536,6 +563,7 @@ export const { Provider, Context } = createDataContext(
            forgotpassword,
            clearCart,
            updateStock,
+           decreaseStock,
         },
   { token:null ,errorMessage:'', userName: '' ,role:'', chatHistory:[],products:[] , cart:[] ,details: []}
 );

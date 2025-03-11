@@ -64,12 +64,12 @@ const HomePageScreen = ({ navigation }) => {
                     <Text style={styles.buttonText}>Fitness Store</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
+                {/* <TouchableOpacity
                     style={styles.button}
                     onPress={() => navigation.navigate("ChatPage")}
                 >
                     <Text style={styles.buttonText}>Chat</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 {state.role === "admin" && (
                     <View>
@@ -104,7 +104,13 @@ const HomePageScreen = ({ navigation }) => {
                             style={styles.button}
                             onPress={() => navigation.navigate("UpdateAmount")}
                         >
-                            <Text style={styles.buttonText}>Update Amount </Text>
+                            <Text style={styles.buttonText}>Adding Amount </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.button}
+                            onPress={() => navigation.navigate("DecreaseAmount")}
+                        >
+                            <Text style={styles.buttonText}>Decrease Amount </Text>
                         </TouchableOpacity>
                     </View>
                 )}

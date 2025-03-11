@@ -27,7 +27,7 @@ import BackWorkoutPageScreen from "./src/screens/BackWorkoutPageScreen"
 import IntroPage from "./src/screens/IntroPage";
 import ForgotPasswordScreenPage from "./src/screens/ForgotPasswordScreenPage";
 import UpdateAmountStorePage from "./src/screens/UpdateAmountStorePage";
-
+import DecreaseAmountPageScreen from "./src/screens/DecreaseAmountPageScreen";
 const SwitchNavigator = createSwitchNavigator({
   ResolveAuth:ResolveAuthScreen,
   loginFlow:createStackNavigator({
@@ -52,6 +52,7 @@ const SwitchNavigator = createSwitchNavigator({
     BackWorkout:BackWorkoutPageScreen,
     ForgotPassword:ForgotPasswordScreenPage,
     UpdateAmount:UpdateAmountStorePage,
+    DecreaseAmount:DecreaseAmountPageScreen,
   }),
 });
 
