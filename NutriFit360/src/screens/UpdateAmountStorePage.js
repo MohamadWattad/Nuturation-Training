@@ -13,31 +13,33 @@ const UpdateStockPageScreen = () => {
         if (!productName.trim() || !stockToAdd.trim()) {
             Alert.alert("Error", "Please enter a product name and stock amount.");
             return;
-        }
-        try{
-            const response = await updateStock(productName, parseInt(stockToAdd));
-            if (response.error) {
-                Alert.alert("Error", response.error);
-                return;
-            }
-            Alert.alert(
-                "Confirm Update",
-                `Are you sure you want to add ${stockToAdd} units to "${productName}"?`,
-                [
-                    { text: "Cancel", style: "cancel" },
-                    {
-                        text: "Update",
-                        onPress: () => {
+        }    
+        Alert.alert(
+            "Confirm Update",
+            `Are you sure you want to add ${stockToAdd} units to "${productName}"?`,
+            [
+                { text: "Cancel", style: "cancel" },    
+                {
+                    text: "Update",
+                    onPress: async () => {
+                        try {
+                            const response = await updateStock(productName, parseInt(stockToAdd));
+    
+                            if (response.error) {
+                                Alert.alert("Error", response.error);
+                                return;
+                            }
+    
                             Alert.alert("Success", `Stock updated successfully for "${productName}"`);
+                        } catch (error) {
+                            Alert.alert("Error", "Failed to update stock. Please try again.");
                         }
                     }
-                ]
-
-            );
-    }catch(error){
-        Alert.alert("Error", "Failed to update stock. Please try again.");
-    }
+                }
+            ]
+        );
     };
+    
 
     return (
         <View style={styles.container}>
