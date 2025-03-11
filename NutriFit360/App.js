@@ -26,6 +26,7 @@ import ChestWorkoutPageScreen from "./src/screens/ChestWorkoutPageScreen";
 import BackWorkoutPageScreen from "./src/screens/BackWorkoutPageScreen"
 import IntroPage from "./src/screens/IntroPage";
 import ForgotPasswordScreenPage from "./src/screens/ForgotPasswordScreenPage";
+import UpdateAmountStorePage from "./src/screens/UpdateAmountStorePage";
 
 const SwitchNavigator = createSwitchNavigator({
   ResolveAuth:ResolveAuthScreen,
@@ -50,6 +51,7 @@ const SwitchNavigator = createSwitchNavigator({
     ChestWorkout:ChestWorkoutPageScreen,
     BackWorkout:BackWorkoutPageScreen,
     ForgotPassword:ForgotPasswordScreenPage,
+    UpdateAmount:UpdateAmountStorePage,
   }),
 });
 

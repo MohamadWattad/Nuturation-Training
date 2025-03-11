@@ -100,6 +100,12 @@ const HomePageScreen = ({ navigation }) => {
                         >
                             <Text style={styles.buttonText}>Delete Video</Text>
                         </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.button}
+                            onPress={() => navigation.navigate("UpdateAmount")}
+                        >
+                            <Text style={styles.buttonText}>Update Amount </Text>
+                        </TouchableOpacity>
                     </View>
                 )}
 

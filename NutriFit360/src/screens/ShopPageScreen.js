@@ -26,10 +26,17 @@ const ShopPageScreen = ({ navigation }) => {
             setFilteredProducts(filtered);
         }
     }, [searchText, state.products]);
-    
+
     const handleAddToCart = async (productName) => {
         try {
-            await addToCart(productName); // Call the context function to add the product to the cart
+            const response = await addToCart(productName); // Call addToCart and wait for response
+
+            // // ✅ Check if the response contains an error (e.g., out of stock)
+            // if (response?.error) {
+            //     Alert.alert("Error", response.error); // Show error message from backend
+            //     return;
+            // }
+            // await addToCart(productName); // Call the context function to add the product to the cart
             Alert.alert("Success", `${productName} has been added to your cart!`);
         } catch (err) {
             Alert.alert("Error", "Failed to add the product to the cart. Please try again.");

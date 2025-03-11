@@ -272,6 +272,28 @@ router.post('/add-to-cart', requireAuth, async (req, res) => {
     }
 });
 
+//update the amount of the product
+router.put('/update-stock', requireAuth , async(req,res) => {
+    const {productName , stockToAdd} = req.body;
+    try{
+        const product = await Products.findOne({name : productName});
+        if (!product){
+            return res.status(400).send({error :'Product not found'});
+        }
+        product.stock += stockToAdd ;
+        await product.save();
+        res.status(200).send({ message: `Stock updated successfully. New stock: ${product.stock}`, product });
+
+    }catch(error){
+        console.error('Error updating stock:', error.message);
+        res.status(500).send({ error: 'Failed to update stock' });
+    }
+})
+
+
+
+
+//clear the cart after payment
 router.delete('/clear-cart' , requireAuth , async(req,res)=>{
     try{
         let cart = await Cart.findOne({ userId: req.user._id });

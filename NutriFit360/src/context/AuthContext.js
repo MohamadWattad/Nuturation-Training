@@ -409,6 +409,33 @@ const addToCart = (dispatch) => {
     };
 };
 
+
+//Update amount for store 
+
+const updateStock = (dispatch) => {
+    return async (productName , stockToAdd) => {
+        try{
+            const token = await AsyncStorage.getItem("token");
+            if (!token) {
+                throw new Error("No token found");
+            }
+            const response = await trackerApi.put(
+                '/update-stock',
+                {productName, stockToAdd},
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+            )
+            console.log("Stock updated successfully:", response.data);
+            dispatch({ type:"getproducts"  , payload: response.data.product});
+            return response.data;
+        }catch (err) {
+            console.error("Error updating stock:", err.message);
+            return { error: "Failed to update stock. Please try again." };
+    }   
+    }
+}
+
 const forgotpassword = (dispatch) => {
     return async (email) => {
         try{
@@ -508,6 +535,7 @@ export const { Provider, Context } = createDataContext(
            deleteVideo,
            forgotpassword,
            clearCart,
+           updateStock,
         },
   { token:null ,errorMessage:'', userName: '' ,role:'', chatHistory:[],products:[] , cart:[] ,details: []}
 );
