@@ -371,6 +371,7 @@ const getcart = (dispatch) => {
 }
 const addToCart = (dispatch) => {
     return async (productName , setProducts) => {
+       
         try {
             const token = await AsyncStorage.getItem("token");
             if (!token) {

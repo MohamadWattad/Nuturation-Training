@@ -210,6 +210,7 @@ router.get('/cart', requireAuth, async (req, res) => {
             return res.status(200).send({
                 message: 'Your cart is empty',
                 products: [],
+                totalPrice:0
             });
         }
 
@@ -217,6 +218,7 @@ router.get('/cart', requireAuth, async (req, res) => {
         if (productName) {
             products = products.filter((product) =>
                 product.name.toLowerCase().includes(productName.toLowerCase())
+                
             );
 
             if (products.length === 0) {
@@ -259,6 +261,7 @@ router.post('/add-to-cart', requireAuth, async (req, res) => {
             cart.products.push({
                 name: product.name,
                 image: product.image,
+                price:product.price,
                 quantity: 1,
             });
         }

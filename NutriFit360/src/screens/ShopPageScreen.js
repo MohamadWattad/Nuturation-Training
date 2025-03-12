@@ -9,6 +9,8 @@ const ShopPageScreen = ({ navigation }) => {
     const { state, getproducts, addToCart } = useContext(AuthContext); // Access addToCart function
     const [searchText, setSearchText] = useState(""); // State for search text
     const [filteredProducts, setFilteredProducts] = useState([]); // Filtered products for search
+    const [productName, setProduct] = useState([]);  // ✅ Make sure this exists
+
 
     useEffect(() => {
         // Fetch products when the component mounts
@@ -27,10 +29,21 @@ const ShopPageScreen = ({ navigation }) => {
         }
     }, [searchText, state.products]);
 
-    const handleAddToCart = async (productName) => {
+    const handleAddToCart = async (productName , stock) => {
+        if(stock <= 0){
+            Alert.alert("Error", `${productName} is out of stock and cannot be added.`);
+            return;
+        }
         try {
-            const response = await addToCart(productName); // Call addToCart and wait for response
-
+            // const response = await addToCart(productName , setProduct); // Call addToCart and wait for response
+            await addToCart(productName);
+            setFilteredProducts((prevProducts) =>
+                prevProducts.map((product) =>
+                    product.name === productName
+                        ? { ...product, stock: Math.max(0, product.stock - 1) } // Prevent negative values
+                        : product
+                )
+            );
             // // ✅ Check if the response contains an error (e.g., out of stock)
             // if (response?.error) {
             //     Alert.alert("Error", response.error); // Show error message from backend
@@ -76,11 +89,15 @@ const ShopPageScreen = ({ navigation }) => {
                         <Text style={styles.price}>${item.price}</Text>
                         <Text>Amount:{item.stock}</Text>
                         <TouchableOpacity
-                            style={styles.button}
-                            onPress={() => handleAddToCart(item.name)} // Pass product name to handleAddToCart
+                            style={[styles.button, item.stock === 0 && styles.disabledButton]} // Apply disabled style
+                            onPress={() => handleAddToCart(item.name, item.stock)} // Pass product name & stock
+                            disabled={item.stock === 0} // Disable button when stock is 0
                         >
-                            <Text style={styles.buttonText}>Add to Cart</Text>
+                        <Text style={styles.buttonText}>
+                            {item.stock === 0 ? "Out of Stock" : "Add to Cart"}
+                        </Text>
                         </TouchableOpacity>
+
                     </View>
                 )}
                 keyExtractor={(item, index) => {
@@ -186,6 +203,9 @@ const styles = StyleSheet.create({
         color: "#fff",
         fontSize: 16,
         fontWeight: "bold",
+    },
+    disabledButton: {
+        backgroundColor: "#aaa", // Gray color for disabled button
     },
 });
 
