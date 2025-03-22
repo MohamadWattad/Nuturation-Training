@@ -1,111 +1,155 @@
 const express = require('express');
 const router = express.Router();
-const Recipe = require('../models/Recipe');
-const UserProgress = require('../models/Userprogress'); // Import the UserProgress schema
+const UserProgress = require('../models/Userprogress'); 
 const requireAuth = require('../middlewares/requireAuth');
-const openai = require('../openaiConfig'); // Import OpenAI configuration
+const openai = require('../openaiConfig');
+const MealPlan = require('../models/MealPlan'); // make sure it's imported
 
-// Chatbot questions route
+
 router.post('/chat/questions', requireAuth, async (req, res) => {
     const defaultQuestions = [
-        "What ingredients or types of food do you like? (e.g., Chicken, Broccoli, Fish)",
+        "What is your gender? (Male/Female)",
+        "What is your height in cm?",
+        "What is your weight in kg?",
+        "What is your age?",
+        "What is your goal? (Gain muscle, Lose fat, Maintain weight)",
+        "How active are you daily? (Sedentary, Lightly active, Moderately active, Very active)",
+        "What do you typically eat in a day? (e.g., Breakfast: Eggs & toast, Lunch: Chicken & rice, etc.)",
         "Do you have any dietary restrictions or allergies? (e.g., Dairy, Gluten, Nuts)",
-        "What is your daily calorie target? (e.g., 2000 calories)",
-        "How many meals do you eat per day? (e.g., 3, 4, or 5)"
+        "What is your daily calorie target? (If unsure, type 'I don't know' and I'll estimate it)",
+        "How many meals do you prefer per day?"
     ];
 
     const userId = req.user_id;
+    const userInput = req.body.message.toLowerCase().trim();
 
-    // Check if the user has previous progress saved in the database
+    console.log(`🔵 User ${userId} sent message: "${userInput}"`);
+
+    if (["hey", "hi", "hello"].includes(userInput)) {
+        return res.json({ 
+            message: "Hey there! 👋 I can create a meal plan tailored to your needs. Let's start!",
+            question: defaultQuestions[0]
+        });
+    }
+
     let userProgress = await UserProgress.findOne({ userId });
 
-    // If the user doesn't have progress, initialize a new entry
     if (!userProgress) {
         userProgress = new UserProgress({
             userId,
-            steps: 0, // Start from the first step
+            steps: 0, 
             responses: {},
         });
-        await userProgress.save(); // Save initial progress
+        await userProgress.save();
+        console.log(`🟢 New progress created for user ${userId}`);
     }
 
-    // Retrieve the current step (this is the step where the user left off)
     const currentStep = userProgress.steps;
+    console.log(`🟡 Current Step for user ${userId}: ${currentStep}`);
 
     try {
-        // Save the user's response for the current step
-        const userInput = req.body.message;
-        console.log(`User ${userId} answered step ${currentStep}:`, userInput);
+        console.log(`✅ User ${userId} answered step ${currentStep}:`, userInput);
 
-        // Validation for each question
-        if (currentStep === 0 && !/^[a-zA-Z, ]+$/.test(userInput)) {
-            // Invalid input for food preferences (expecting food names separated by commas)
-            return res.json({
-                message: "Please provide a valid list of ingredients you like, separated by commas. Example: Chicken, Broccoli, Fish.",
-                question: defaultQuestions[currentStep],
-            });
-        }
-
-        if (currentStep === 1 && !/^[a-zA-Z, ]+$/.test(userInput)) {
-            // Invalid input for dietary restrictions (expecting allergies or food restrictions separated by commas)
-            return res.json({
-                message: "Please provide a valid list of dietary restrictions or allergies, separated by commas. Example: Dairy, Gluten, Nuts.",
-                question: defaultQuestions[currentStep],
-            });
-        }
-
-        if (currentStep === 2 && !/^\d+$/.test(userInput)) {
-            // Invalid input for calorie target (expecting a numeric value)
-            return res.json({
-                message: "Please provide a valid number for your daily calorie target.",
-                question: defaultQuestions[currentStep],
-            });
-        }
-
-        if (currentStep === 3 && !/^\d+$/.test(userInput)) {
-            // Invalid input for meals per day (expecting a numeric value)
-            return res.json({
-                message: "Please provide a valid number for the number of meals you eat per day.",
-                question: defaultQuestions[currentStep],
-            });
-        }
-
-        // Save valid response
-        userProgress.responses[`step${currentStep}`] = userInput;
+        userProgress.responses.set(`step${currentStep}`, userInput);
         await userProgress.save();
+        console.log(`📝 Saved response for step ${currentStep}:`, userProgress.responses);
 
-        // If the user hasn't completed all steps, move to the next question
         if (currentStep < defaultQuestions.length - 1) {
             userProgress.steps += 1;
-            await userProgress.save(); // Save the updated step
+            await userProgress.save();
+            console.log(`🔄 Moving to step ${userProgress.steps} for user ${userId}`);
 
-            // Respond with the next question
             return res.json({
-                message: defaultQuestions[userProgress.steps],
+                message: "Got it! " + defaultQuestions[userProgress.steps],
                 question: defaultQuestions[userProgress.steps],
             });
         } else {
-            // After all questions are answered, generate the meal plan
-            console.log(`User ${userId} completed all steps. Generating meal plan...`);
+            console.log(`🚀 User ${userId} completed all steps. Generating meal plan...`);
+            console.log("🟠 Full user responses:", userProgress.responses);
 
-            const preferences = userProgress.responses.step0 || "";
-            const restrictions = userProgress.responses.step1 || "";
-            const calorieTarget = userProgress.responses.step2 || "";
-            const mealCount = userProgress.responses.step3 || "";
+            const gender = userProgress.responses.get('step0');
+            const height = parseInt(userProgress.responses.get('step1'), 10);
+            const weight = parseInt(userProgress.responses.get('step2'), 10);
+            const age = parseInt(userProgress.responses.get('step3'), 10);
+            const goal = userProgress.responses.get('step4') || "Maintain weight";
+            const activityLevel = userProgress.responses.get('step5') || "Moderately active";
+            const currentDiet = userProgress.responses.get('step6') || "Varied";
+            const restrictions = userProgress.responses.get('step7') || "None";
+            let calorieTarget = userProgress.responses.get('step8');
+            const mealCount = parseInt(userProgress.responses.get('step9'), 10);
 
-            // Use OpenAI to create a nutrition plan based on user responses
+            console.log(`⚡ Gender: ${gender}`);
+            console.log(`⚡ Height: ${height} cm`);
+            console.log(`⚡ Weight: ${weight} kg`);
+            console.log(`⚡ Age: ${age}`);
+            console.log(`⚡ User goal: ${goal}`);
+            console.log(`⚡ Activity Level: ${activityLevel}`);
+            console.log(`⚡ User-Selected Daily Calories: ${calorieTarget}`);
+            console.log(`⚡ Meal Count: ${mealCount}`);
+
+            // 🔹 If user doesn't know their calorie target, estimate it using BMR
+            if (!calorieTarget || calorieTarget === "i don't know") {
+                console.log("⚠️ User doesn't know calorie target. Estimating using BMR...");
+                calorieTarget = estimateCalories(gender, height, weight, age, goal, activityLevel);
+                console.log(`🟢 Estimated Calorie Target: ${calorieTarget} kcal`);
+            } else {
+                calorieTarget = parseInt(calorieTarget, 10);
+            }
+
             const nutritionPlan = await openai.chat.completions.create({
                 model: "gpt-4",
                 messages: [
-                    { role: "system", content: "You are a skilled nutritionist creating personalized meal plans." },
-                    { role: "user", content: `Create a detailed nutrition plan based on the following information:\nPreferences: ${preferences}\nRestrictions: ${restrictions}\nCalorie Target: ${calorieTarget}\nNumber of Meals: ${mealCount}. Please include nutritional values (Calories, Protein, Carbs, Fats) for each meal.` }
+                    { role: "system", content: "You are a professional nutritionist creating structured meal plans based on user goals." },
+                    { 
+                        role: "user", 
+                        content: `Create a meal plan based on:
+                        - **User Gender**: ${gender}
+                        - **Height**: ${height} cm
+                        - **Weight**: ${weight} kg
+                        - **Age**: ${age}
+                        - **User Goal**: ${goal}
+                        - **Activity Level**: ${activityLevel}
+                        - **Current Diet**: ${currentDiet}
+                        - **Dietary Restrictions**: ${restrictions}
+                        - **Total Daily Calories**: ${calorieTarget} kcal
+                        - **Number of Meals**: ${mealCount}
+            
+                        🔹 **VERY IMPORTANT**: 
+                        - The **total daily calories must be exactly ${calorieTarget} kcal**.
+                        - Each meal must have **realistic calorie values**.
+                        - **Use real-world food data** for protein, fats, and carbs.
+                        - Ensure proper nutrient balance.
+                        
+                        🔹 **FORMAT THE RESPONSE LIKE THIS:**  
+                        
+                        **Meal 1: [Meal Name]**  
+                        - 🍽️ **Calories**: [REAL kcal value]
+                        - 🍗 **Protein**: [REAL amount]
+                        - 🍞 **Carbs**: [REAL amount]
+                        - 🥑 **Fats**: [REAL amount]
+                        📌 **Recipe**: [Accurate Preparation Instructions]
+            
+                        Continue this format for **${mealCount} meals**, ensuring total calories = **${calorieTarget} kcal**.` 
+                    }
                 ],
-                max_tokens: 500,
+                max_tokens: 1000,
             });
 
             const planText = nutritionPlan.choices[0]?.message?.content?.trim();
+            console.log("✅ AI Generated Plan:", planText);
+            const newMealPlan = new MealPlan({
+                userId: userId,
+                goal: goal,
+                activityLevel: activityLevel,
+                dietaryRestrictions: restrictions,
+                calorieTarget: calorieTarget,
+                mealCount: mealCount,
+                plan: planText,
+            });
+            
+            await newMealPlan.save();
+            console.log("✅ Meal plan saved successfully for user:", userId);
 
-            // Clear user progress after generating the plan
             await UserProgress.deleteOne({ userId });
 
             return res.json({
@@ -114,10 +158,36 @@ router.post('/chat/questions', requireAuth, async (req, res) => {
             });
         }
     } catch (error) {
-        console.error("Error processing chatbot step for user:", userId, error.message);
+        console.error("❌ Error processing chatbot step for user:", userId, error.message);
         return res.status(500).json({ error: "Failed to process your response. Please try again." });
     }
 });
 
+// 🔥 Function to estimate calories using BMR
+function estimateCalories(gender, height, weight, age, goal, activityLevel) {
+    const activityMultipliers = {
+        "sedentary": 1.2,
+        "lightly active": 1.375,
+        "moderately active": 1.55,
+        "very active": 1.725
+    };
+
+    let bmr;
+    if (gender.toLowerCase() === "male") {
+        bmr = 88.36 + (13.4 * weight) + (4.8 * height) - (5.7 * age);
+    } else {
+        bmr = 447.6 + (9.2 * weight) + (3.1 * height) - (4.3 * age);
+    }
+
+    let estimatedCalories = bmr * (activityMultipliers[activityLevel.toLowerCase()] || 1.55);
+
+    if (goal.toLowerCase() === "gain muscle") {
+        estimatedCalories += 500;
+    } else if (goal.toLowerCase() === "lose fat") {
+        estimatedCalories -= 500;
+    }
+
+    return Math.round(estimatedCalories);
+}
 
 module.exports = router;

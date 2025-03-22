@@ -29,6 +29,7 @@ const CartPageScreen = ({ navigation }) => {
                 <Text style={styles.productName}>{item.name}</Text>
                 <Text style={styles.productQuantity}>Quantity: {item.quantity}</Text>
                 <Text style={styles.productName}>Price:{item.price}</Text>
+                <Text style={styles.productQuantity}>Total: ${item.totalProductPrice}</Text>
               </View>
             </View>
           )}

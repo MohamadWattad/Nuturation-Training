@@ -215,9 +215,11 @@ router.get('/cart', requireAuth, async (req, res) => {
         }
 
         let products = cart.products;
+        let total = cart.price;
         if (productName) {
             products = products.filter((product) =>
                 product.name.toLowerCase().includes(productName.toLowerCase())
+                
                 
             );
 
@@ -231,6 +233,7 @@ router.get('/cart', requireAuth, async (req, res) => {
         res.status(200).send({
             message: 'Cart retrieved successfully',
             products,
+            
         });
     } catch (err) {
         console.error('Error fetching cart items:', err.message);
