@@ -4,6 +4,8 @@ const UserProgress = require('../models/Userprogress');
 const requireAuth = require('../middlewares/requireAuth');
 const openai = require('../openaiConfig');
 const MealPlan = require('../models/MealPlan'); // make sure it's imported
+const User = require('../models/User'); // if you need to check the user
+
 
 
 router.post('/chat/questions', requireAuth, async (req, res) => {
@@ -189,5 +191,20 @@ function estimateCalories(gender, height, weight, age, goal, activityLevel) {
 
     return Math.round(estimatedCalories);
 }
+
+router.get('/getMealPlan' ,requireAuth , async(req , res)=>{
+    try{
+        const mealPlans = await MealPlan.find({ userId: req.user_id }).sort({ createdAt: -1 });
+
+        res.status(200).send({
+            message: "Meal plans retrieved successfully",
+            mealPlans: mealPlans,
+          });
+    }catch (error) {
+        console.error("❌ Error fetching meal plans:", error.message);
+        res.status(500).send({ error: "Failed to retrieve meal plans" });
+      }
+})
+
 
 module.exports = router;

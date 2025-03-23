@@ -90,6 +90,12 @@ const ProfilePageScreen = ({ navigation }) => {
                                     titleStyle={styles.buttonText}
                                     onPress={() => navigation.navigate("BMI")}
                                 />
+                                <Button
+                                    title="Meal Plan"
+                                    buttonStyle={styles.button}
+                                    titleStyle={styles.buttonText}
+                                    onPress={() => navigation.navigate("MealPlan")}
+                                />
                             </View>
                         </ScrollView>
                     )}

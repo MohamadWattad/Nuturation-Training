@@ -14,10 +14,13 @@ import { Context as AuthContext } from "../context/AuthContext";
 const ChatPageScreen = () => {
   const { state, chatpage } = useContext(AuthContext); // Access context
   const [input, setInput] = useState(""); // User input
+  const [loading, setLoading] = useState(false);
 
-  const handleSend = () => {
+  const handleSend = async() => {
     if (input.trim()) {
-      chatpage(input); // Call the context function
+      setLoading(true);
+      await chatpage(input); // Call the context function
+      setLoading(false);
       setInput(""); // Clear the input field
     }
   };

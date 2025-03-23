@@ -51,6 +51,8 @@ const authReducer = (state, action) => {
         }
     case 'forgotpassword':
         return {...state , token:action.payload , errorMessage:"" }
+    case 'getMealPlan':
+        return {...state , mealPlan:action.payload}
     
     default:
       return state;
@@ -501,45 +503,75 @@ const clearCart = ( dispatch) => {
     }
 }
 
-
 const chatpage = (dispatch) => {
-    return async (userMessage) => {
-      try {
-        // Get the token from AsyncStorage
-        const token = await AsyncStorage.getItem("token");
-        if (!token) {
-          throw new Error("No token found");
-        }
-  
-        // Send user message to the backend
-        const response = await trackerApi.post(
-          "/chat/questions",
-          { message: userMessage },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
+    return async(userMessage) => {
+        try{
+            const token = await AsyncStorage.getItem("token");
+            if(!token){
+                throw new Error("Not token found");
+            }
+            const response = await trackerApi.post(
+                "/chat/questions",
+                { message: userMessage }, 
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+              console.log("✅ Got response from server:", response.data);
+
+            const botMessage = response.data.plan
+            ? response.data.plan
+            : response.data.question || response.data.message;
+
+      // Dispatch both messages
+        dispatch({
+            type: "chat_response",
+            payload: {
+                userMessage,
+                botMessage,
             },
-          }
-        );
-  
-        // Dispatch the chatbot response
-        dispatch({
-          type: "chat_response",
-          payload: {
-            userMessage,
-            botMessage: response.data.message,
-          },
         });
-      } catch (err) {
-        console.error("Error in chatpage function:", err.message);
-        dispatch({
-          type: "add_error",
-          payload: "Failed to communicate with the chatbot. Please try again.",
-        });
-      }
-    };
-  };
-  
+        }catch (err) {
+            console.error("❌ Error in chatpage function:", err.message);
+            dispatch({
+              type: "add_error",
+              payload: "Failed to communicate with the chatbot. Please try again.",
+            });
+    }
+    }
+}
+
+//get meal plan for the user
+const getMealPlan = (dispatch) => {
+    return async () => {
+        try{
+            const token = await AsyncStorage.getItem("token");
+            if(!token){
+                throw new Error("No token found");
+            }
+            const response = await trackerApi.get(
+                "getMealPlan",{
+                    headers:{
+                        Authorization:`Bearer ${token}`,
+                    },
+                });
+                console.log("✅ Fetched meal plan:", response.data);
+                dispatch({
+                    type: "getMealPlan", // You'll need to handle this in your reducer
+                    payload: response.data,
+                  });
+        }catch (err) {
+            console.error("❌ Error fetching meal plan:", err.message);
+            dispatch({
+              type: "add_error",
+              payload: "Failed to fetch your meal plan.",
+            });
+
+        };
+    }
+}
 
 export const { Provider, Context } = createDataContext(
   authReducer,
@@ -565,6 +597,7 @@ export const { Provider, Context } = createDataContext(
            clearCart,
            updateStock,
            decreaseStock,
+           getMealPlan,
         },
-  { token:null ,errorMessage:'', userName: '' ,role:'', chatHistory:[],products:[] , cart:[] ,details: []}
+  { token:null ,errorMessage:'', userName: '' ,role:'', chatHistory:[],products:[] , cart:[] ,details: [] , mealPlan : null}
 );
