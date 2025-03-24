@@ -12,7 +12,7 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const Products = require('../models/Products');
 const Video = require('../models/Video');
-
+const WorkoutPlan = require('../models/WorkoutPlan');
 const accountSid = 'AC9f94db0b2b1a2c27f7e1fc214637fae6'; // Replace with your Twilio Account SID
 const authToken = 'a047bdbfad9b7d3b567d2829a114dd48'; // Replace with your Twilio Auth Token
 const client = twilio(accountSid, authToken);
@@ -199,6 +199,47 @@ router.delete('/video', async (req, res) => {
         res.status(500).send({ error: 'Failed to delete video' });
     }
 });
+
+//Post video trining for user (user is choosing the video he want to train not admin post videos for training)
+router.post('/Workout-Plan' , requireAuth , async (req , res)=>{
+    try{
+        const userId = req.user_id;
+        const { exerciseIds } = req.body;
+        if (!Array.isArray(exerciseIds) || exerciseIds.length === 0){
+            return res.status(400).send({error:'No exercise provided' })
+        }
+
+        const newPlan = new WorkoutPlan ({
+            userId , 
+            exercises : exerciseIds,
+        });
+        await newPlan.save();
+        // after the save for the exercises we add .populate to copy all things in Video schema taking all things gifurl , image ....
+        const populatedWorkout = await WorkoutPlan.findById(newPlan._id).populate('exercises');
+        res.status(201).send({message:"exercise saved successfully" , plan:populatedWorkout});
+    }catch (err){
+        console.error("Error saving workout plan:", err.message);
+        res.status(500).send({ error: "Failed to save workout plan" });
+    }
+});
+
+//get the list of exercises that user choosed for training ( not exercises that admin add to the workout page)
+router.get('/getWorkout-Plan',requireAuth,async(req,res)=>{
+    try{
+        const userId = req.user_id;
+        const workotPlan = await WorkoutPlan.find({userId}).populate("exercises");
+        
+        if(workotPlan.length === 0){
+            res.status(404).send({message:"No workout plans found for this user."});
+        }
+        
+        res.status(200).send({plans:workotPlan});
+    }catch (err) {
+        console.error("Error fetching workout plans:", err.message);
+        res.status(500).send({ error: "Failed to fetch workout plans" });
+      }
+})
+
 
 // Get Cart
 router.get('/cart', requireAuth, async (req, res) => {
