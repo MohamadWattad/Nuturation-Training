@@ -239,7 +239,36 @@ router.get('/getWorkout-Plan',requireAuth,async(req,res)=>{
         res.status(500).send({ error: "Failed to fetch workout plans" });
       }
 })
-
+// delete exercise from the list that user make for exercises
+router.delete('/deleteExercise' , requireAuth, async(req,res) => {
+    try{
+        const userId = req.user_id;
+        const { exerciseId } = req.body;
+        if (!exerciseId) {
+            return res.status(400).send({ error: "Exercise ID is required." });
+          }
+        const plan = await WorkoutPlan.findOne({userId});
+        if (!plan) {
+            return res.status(404).send({ error: "Workout plan not found." });
+          }
+          plan.exercises = plan.exercises.filter(
+            (id) => id.toString() !== exerciseId
+          );
+      
+          await plan.save();
+      
+          const updatedPlan = await WorkoutPlan.findOne({ userId }).populate("exercises");
+      
+          res.status(200).send({
+            message: "Exercise deleted successfully",
+            plan: updatedPlan,
+          });
+        } catch (err) {
+          console.error("Error deleting exercise:", err.message);
+          res.status(500).send({ error: "Failed to delete exercise." });
+        }
+    }
+)
 
 // Get Cart
 router.get('/cart', requireAuth, async (req, res) => {
