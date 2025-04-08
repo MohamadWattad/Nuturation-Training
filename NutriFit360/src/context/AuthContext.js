@@ -60,6 +60,10 @@ const authReducer = (state, action) => {
         return {...state , details:action.payload , errorMessage:""};
     case 'delete_exercise':
         return { ...state, details: action.payload, errorMessage: "" };
+    case 'add_meal':
+        return { ...state, meals: action.payload, errorMessage: "" };
+    case 'get_meals':
+        return { ...state, meals: action.payload, errorMessage: "" };
     default:
       return state;
   }
@@ -581,6 +585,89 @@ const clearCart = ( dispatch) => {
         }
     }
 }
+//Adding meals for the page 
+const addMeals = (dispatch) => {
+    return async (title , image , category ,calories, carbs , fat , protein, ingredients)=>{
+        try{
+            const token = await AsyncStorage.getItem("token");
+            if(!token){
+                throw new Error("No token found");
+            }
+            const response = await trackerApi.post("/recipes",
+                {
+                    title,
+                    image,
+                    categories: category,   
+                    calories,
+                    carbs,
+                    fat,
+                    protein,
+                    ingredients,
+                },
+                {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            dispatch({type: "add_meal", payload: response.data})
+        }catch(err){
+            dispatch({
+                type: "add_error",
+                payload: "Failed to add meal. Please try again.",
+              });
+        }
+    }
+}
+//Get the meals for the page 
+const getMeals = (dispatch) => {
+    return async ()=>{
+        try{
+            const token = await AsyncStorage.getItem("token");
+            if(!token){
+                throw new Error("no token found");
+            }
+            const response = await trackerApi.get("/recipes",{
+                headers:{
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            dispatch({type:"get_meals",payload:response.data});
+        }catch (err) {
+            console.error("Error fetching meals:", err.message);
+            dispatch({
+              type: "add_error",
+              payload: "Failed to fetch meals. Please try again.",
+            });
+        }
+    }
+}
+
+//delete meals from the meal page
+const deleteMeal = (dispatch) => {
+    return async(title) => {
+        try{
+            const token = await AsyncStorage.getItem("token");
+            if(!token){
+                throw new Error("no token found");
+            }
+            const response = await trackerApi.delete("/recipes",{
+                headers:{
+                    Authorization: `Bearer ${token}`,
+                },
+                data:{ title }
+            });
+            dispatch({ type: "get_meals", payload: response.data.recipes });
+
+        }catch (err) {
+            console.error("Error deleting meal:", err.message);
+            dispatch({
+              type: "add_error",
+              payload: "Failed to delete meal. Please try again.",
+            });
+          }
+    }
+}
 
 const chatpage = (dispatch) => {
     return async(userMessage) => {
@@ -680,6 +767,9 @@ export const { Provider, Context } = createDataContext(
            AddExercise,
            getWorkoutPlan,
            deleteExercise,
+           addMeals,
+           getMeals,
+           deleteMeal,
         },
   { token:null ,errorMessage:'', userName: '' ,role:'', chatHistory:[],products:[] , cart:[] ,details: [] , mealPlan : null}
 );
