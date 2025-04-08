@@ -16,6 +16,7 @@ const WorkoutPlan = require('../models/WorkoutPlan');
 const accountSid = 'AC9f94db0b2b1a2c27f7e1fc214637fae6'; // Replace with your Twilio Account SID
 const authToken = 'a047bdbfad9b7d3b567d2829a114dd48'; // Replace with your Twilio Auth Token
 const client = twilio(accountSid, authToken);
+const Recipeee = require('../models/Recipee');
 
 const router = express.Router();
 
@@ -201,27 +202,52 @@ router.delete('/video', async (req, res) => {
 });
 
 //Post video trining for user (user is choosing the video he want to train not admin post videos for training)
-router.post('/Workout-Plan' , requireAuth , async (req , res)=>{
-    try{
-        const userId = req.user_id;
-        const { exerciseIds } = req.body;
-        if (!Array.isArray(exerciseIds) || exerciseIds.length === 0){
-            return res.status(400).send({error:'No exercise provided' })
-        }
-
-        const newPlan = new WorkoutPlan ({
-            userId , 
-            exercises : exerciseIds,
+router.post('/Workout-Plan', requireAuth, async (req, res) => {
+    try {
+      const userId = req.user_id;
+      const { exerciseIds } = req.body;
+  
+      if (!Array.isArray(exerciseIds) || exerciseIds.length === 0) {
+        return res.status(400).send({ error: 'No exercise provided' });
+      }
+  
+      // 🔍 Check if user already has a plan
+      let existingPlan = await WorkoutPlan.findOne({ userId });
+  
+      if (!existingPlan) {
+        // 🆕 No plan yet → create new
+        existingPlan = new WorkoutPlan({
+          userId,
+          exercises: exerciseIds,
         });
-        await newPlan.save();
-        // after the save for the exercises we add .populate to copy all things in Video schema taking all things gifurl , image ....
-        const populatedWorkout = await WorkoutPlan.findById(newPlan._id).populate('exercises');
-        res.status(201).send({message:"exercise saved successfully" , plan:populatedWorkout});
-    }catch (err){
-        console.error("Error saving workout plan:", err.message);
-        res.status(500).send({ error: "Failed to save workout plan" });
+      } else {
+        // ✅ Filter out already-added exercises
+        const currentIds = existingPlan.exercises.map(id => id.toString());
+        const newExercises = exerciseIds.filter(id => !currentIds.includes(id));
+  
+        if (newExercises.length === 0) {
+          return res.status(409).send({ message: "Exercise already added." });
+        }
+  
+        // 🧩 Add only the new ones
+        existingPlan.exercises.push(...newExercises);
+      }
+  
+      await existingPlan.save();
+  
+      const populatedPlan = await WorkoutPlan.findById(existingPlan._id).populate('exercises');
+  
+      res.status(201).send({
+        message: "Exercise added successfully",
+        plan: populatedPlan,
+      });
+  
+    } catch (err) {
+      console.error("Error saving workout plan:", err.message);
+      res.status(500).send({ error: "Failed to save workout plan" });
     }
-});
+  });
+  
 
 //get the list of exercises that user choosed for training ( not exercises that admin add to the workout page)
 router.get('/getWorkout-Plan',requireAuth,async(req,res)=>{
@@ -269,6 +295,61 @@ router.delete('/deleteExercise' , requireAuth, async(req,res) => {
         }
     }
 )
+
+//Adding meals for the Page (Page have meals)
+router.post('/recipes',requireAuth,async(req,res)=>{
+    try{
+        const {title , image ,calories , carbs , fat , protein ,ingredients,category } = req.body;
+
+        if(!title || !image || !calories || !carbs || !fat || !protein ||!ingredients){
+            return res.status(400).send({ error: 'All fields are required.' });
+        }
+        const recipe = new Recipeee({
+            title,
+            image,
+            calories,
+            carbs,
+            fat,
+            protein,
+            ingredients,
+            category,
+        })
+        await recipe.save();
+        res.status(201).send({ message: 'Recipe created successfully!', recipe });
+    }catch (err) {
+        console.error("Error saving recipe:", err.message);
+        res.status(500).send({ error: 'Failed to create recipe' });
+    }
+});
+//Get the meals (Page for meals)
+router.get('/recipes' , requireAuth , async(req,res) => {
+    try{
+        const recipes = await Recipeee.find({});
+        res.status(200).send(recipes);
+    }catch(err){
+        console.error("Error fetching recipes:", err.message);
+        res.status(500).send({ error: "Failed to fetch recipes." });
+    }
+});
+
+//delete meals (delete meal from the page of meals)
+router.delete('/recipes' , requireAuth , async(req,res)=>{
+    try{
+        const {title} = req.body;
+        if(!title) {
+            res.status(400).send({error:"Recipe title is required."})
+        }
+        const deleted = await Recipeee.findOneAndDelete({title});
+
+        if(!deleted){
+            return res.status(404).send({ error: "Recipe not found" });
+        }
+        res.status(200).send({ message: "Recipe deleted successfully", deleted });
+    }catch (err) {
+        console.error("Error deleting recipe:", err.message);
+        res.status(500).send({ error: "Failed to delete recipe" });
+      }
+});
 
 // Get Cart
 router.get('/cart', requireAuth, async (req, res) => {

@@ -1,7 +1,7 @@
 import React from "react";
 import { createAppContainer , createSwitchNavigator } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
-import { createMaterialBottomTabNavigator } from "react-navigation-material-bottom-tabs";
+// import { createMaterialBottomTabNavigator } from "react-navigation-material-bottom-tabs";
 import SignupScreen from "./src/screens/SignupScreen";
 import SigninScreen from "./src/screens/SigninScreen";
 import { Provider as AuthProvider } from "./src/context/AuthContext";
@@ -29,6 +29,7 @@ import ForgotPasswordScreenPage from "./src/screens/ForgotPasswordScreenPage";
 import UpdateAmountStorePage from "./src/screens/UpdateAmountStorePage";
 import DecreaseAmountPageScreen from "./src/screens/DecreaseAmountPageScreen";
 import MealPageScreen from "./src/screens/MealPageScreen";
+import WorkoutPlanScreen from "./src/screens/WorkoutPlanScreen";
 const SwitchNavigator = createSwitchNavigator({
   ResolveAuth:ResolveAuthScreen,
   loginFlow:createStackNavigator({
@@ -55,6 +56,8 @@ const SwitchNavigator = createSwitchNavigator({
     UpdateAmount:UpdateAmountStorePage,
     DecreaseAmount:DecreaseAmountPageScreen,
     MealPlan:MealPageScreen,
+    WorkoutPlan:WorkoutPlanScreen,
+
   }),
 });
 

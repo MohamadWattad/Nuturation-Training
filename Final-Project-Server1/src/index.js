@@ -6,7 +6,9 @@ require('./models/Products');
 require('./models/Cart');
 require('dotenv').config();
 require('./models/Video');
+require('./models/Recipee');
 console.log("OpenAI API Key:", process.env.OPENAI_API_KEY);
+
 
 const express = require ('express');
 const mongoose =require('mongoose');

@@ -2,6 +2,7 @@ import createDataContext from "./createDataContext";
 import trackerApi from "../api/tracker";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { navigate } from "../navigationRef";
+// import { response } from "express";
 
 const authReducer = (state, action) => {
   switch (action.type) {
@@ -50,10 +51,15 @@ const authReducer = (state, action) => {
             products: state.products.filter((product) => product.name !== action.payload),
         }
     case 'forgotpassword':
-        return {...state , token:action.payload , errorMessage:"" }
+        return {...state , token:action.payload , errorMessage:"" };
     case 'getMealPlan':
-        return {...state , mealPlan:action.payload}
-    
+        return {...state , mealPlan:action.payload};
+    case 'AddExercise':
+        return {...state , details:action.payload , errorMessage:""};
+    case 'get_workout_plan':
+        return {...state , details:action.payload , errorMessage:""};
+    case 'delete_exercise':
+        return { ...state, details: action.payload, errorMessage: "" };
     default:
       return state;
   }
@@ -270,8 +276,81 @@ const deleteVideo = (dispatch) => {
     }
 } 
 }
+// add exercise that user choose exercise to add for here list 
+const AddExercise = (dispatch) => {
+    return async (exerciseId) => {
+        try{
+            const token = await AsyncStorage.getItem("token");
+            if (!token){
+                throw new Error("No token found");
+            }
+            const response = await trackerApi.post(
+                "/Workout-Plan",
+                { exerciseIds: [exerciseId] }, // Send as array
+                {
+                    headers: {
+                    Authorization: `Bearer ${token}`,
+                    },
+                }
+            )
+            dispatch({type:'AddExercise' , payload:response.data});
 
+        }catch (err){
+            dispatch({
+                type: "add_error",
+                payload: "Failed to add exercise. Please try again.",
+              });
+        }
+    }
+}
+// Get list of exercise that the user choosen from Workout page 
+const getWorkoutPlan = (dispatch) => {
+    return async () => {
+        try{
+            const token = await AsyncStorage.getItem('token');
+            if(!token){
+                throw new Error('no token found');
+            }
+            const response = await trackerApi.get('/getWorkout-Plan',{
+                headers:{
+                    Authorization:`Bearer ${token}`,
+                }
+            });
+            dispatch({type:'get_workout_plan' ,payload: response.data.plans}) 
+        }catch(err){
+            dispatch({
+                type: "add_error",
+                payload: "Failed to fetch workout plan.",
+              });
+        }
+    }
+}
 
+//Delete exercise from the list that use maked
+const deleteExercise = (dispatch) => {
+    return async (exerciseId) => {
+        try{
+            const token = await AsyncStorage.getItem('token');
+            if(!token) {
+                throw new Error("no token found");
+            }
+            const response = await trackerApi.delete('/deleteExercise',{
+                headers:{
+                    Authorization: `Bearer ${token}`,
+
+                },
+                data: { exerciseId },
+            });
+            dispatch({ type: "delete_exercise", payload: response.data.plan }); 
+
+        }catch(err){
+            dispatch({
+                type: "add_error",
+                payload: "Failed to delete exercise.",
+              });
+        }
+    }
+}
 const addproducts = (dispatch) => {
     return async({name ,description , price   , image  ,  stock , category }) => {
         try{
@@ -598,6 +677,9 @@ export const { Provider, Context } = createDataContext(
            updateStock,
            decreaseStock,
            getMealPlan,
+           AddExercise,
+           getWorkoutPlan,
+           deleteExercise,
         },
   { token:null ,errorMessage:'', userName: '' ,role:'', chatHistory:[],products:[] , cart:[] ,details: [] , mealPlan : null}
 );

@@ -1,10 +1,10 @@
 import React, { useEffect, useContext } from "react";
-import { StyleSheet, View, Text, FlatList, Image, ActivityIndicator } from "react-native";
+import { StyleSheet, View, Text, FlatList, Image, ActivityIndicator  , TouchableOpacity, Alert} from "react-native";
 import { Context as AuthContext } from "../context/AuthContext";
 import { Dimensions } from "react-native";
 
 const BackWorkoutPageScreen = () => {
-  const { state, getVideo } = useContext(AuthContext);
+  const { state, getVideo,AddExercise } = useContext(AuthContext);
 
   useEffect(() => {
     getVideo("Back"); 
@@ -39,6 +39,12 @@ const BackWorkoutPageScreen = () => {
             <Text style={styles.videoTitle}>{item.title}</Text>
             <Text style={styles.description}>{item.description}</Text>
             <Text style={styles.duration}>Duration: {item.duration}</Text>
+            <TouchableOpacity onPress={() => {
+              AddExercise(item._id);
+              Alert.alert("Added!", "This exercise was added to your list.");
+            }}>
+              <Text>+</Text>
+            </TouchableOpacity>
           </View>
         )}
       />
