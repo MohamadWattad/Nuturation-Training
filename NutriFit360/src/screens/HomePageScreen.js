@@ -52,17 +52,26 @@ const HomePageScreen = ({ navigation }) => {
 
                 <TouchableOpacity
                     style={styles.button}
+                    onPress={() => navigation.navigate("MealsPage")}
+                >
+                    <Text style={styles.buttonText}>Meals Page</Text>
+                </TouchableOpacity>
+                
+                
+
+                {/* <TouchableOpacity
+                    style={styles.button}
                     onPress={() => navigation.navigate("Workout")}
                 >
                     <Text style={styles.buttonText}>Workout</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
-                <TouchableOpacity
+                {/* <TouchableOpacity
                     style={styles.button}
                     onPress={() => navigation.navigate("ShopPage")}
                 >
                     <Text style={styles.buttonText}>Fitness Store</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
 
                 {/* <TouchableOpacity
                     style={styles.button}
@@ -111,6 +120,18 @@ const HomePageScreen = ({ navigation }) => {
                             onPress={() => navigation.navigate("DecreaseAmount")}
                         >
                             <Text style={styles.buttonText}>Decrease Amount </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.button}
+                            onPress={() => navigation.navigate("addMeal")}
+                        >
+                            <Text style={styles.buttonText}>Add meal</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.button}
+                            onPress={() => navigation.navigate("deleteMeal")}
+                        >
+                            <Text style={styles.buttonText}>Delete meal </Text>
                         </TouchableOpacity>
                     </View>
                 )}

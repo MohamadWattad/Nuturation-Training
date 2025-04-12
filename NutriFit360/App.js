@@ -30,6 +30,10 @@ import UpdateAmountStorePage from "./src/screens/UpdateAmountStorePage";
 import DecreaseAmountPageScreen from "./src/screens/DecreaseAmountPageScreen";
 import MealPageScreen from "./src/screens/MealPageScreen";
 import WorkoutPlanScreen from "./src/screens/WorkoutPlanScreen";
+import AddMealPageScreen from "./src/screens/AddMealPageScreen";
+import DeleteMealPageScreen from "./src/screens/DeleteMealPageScreen";
+import MealsPageScreen1 from "./src/screens/MealsPageScreen1";
+
 const SwitchNavigator = createSwitchNavigator({
   ResolveAuth:ResolveAuthScreen,
   loginFlow:createStackNavigator({
@@ -57,6 +61,10 @@ const SwitchNavigator = createSwitchNavigator({
     DecreaseAmount:DecreaseAmountPageScreen,
     MealPlan:MealPageScreen,
     WorkoutPlan:WorkoutPlanScreen,
+    addMeal:AddMealPageScreen,
+    deleteMeal:DeleteMealPageScreen,
+    MealsPage:MealsPageScreen1,
+
 
   }),
 });

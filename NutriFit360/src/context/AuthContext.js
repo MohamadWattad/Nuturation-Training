@@ -597,7 +597,7 @@ const addMeals = (dispatch) => {
                 {
                     title,
                     image,
-                    categories: category,   
+                    category,   
                     calories,
                     carbs,
                     fat,
