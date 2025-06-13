@@ -454,46 +454,75 @@ const getcart = (dispatch) => {
     }
 };
 }
-const addToCart = (dispatch) => {
-    return async (productName , setProducts) => {
+// const addToCart = (dispatch) => {
+//     return async (productName , setProducts) => {
        
-        try {
-            const token = await AsyncStorage.getItem("token");
-            if (!token) {
-                throw new Error("No token found");
-            }
+//         try {
+//             const token = await AsyncStorage.getItem("token");
+//             if (!token) {
+//                 throw new Error("No token found");
+//             }
 
-            // Add product to cart API call
-            const response = await trackerApi.post(
-                "/add-to-cart",
-                { productName }, // Send product name to the backend
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+//             // Add product to cart API call
+//             const response = await trackerApi.post(
+//                 "/add-to-cart",
+//                 { productName }, // Send product name to the backend
+//                 {
+//                     headers: {
+//                         Authorization: `Bearer ${token}`,
+//                     },
+//                 }
+//             );
 
-            console.log("Product added to cart:", response.data);
+//             console.log("Product added to cart:", response.data);
             
-            setProducts((prevProducts) =>
-                prevProducts.map((product) =>
-                    product.name === productName
-                        ? { ...product, stock: Math.max(0, product.stock - 1) } // Prevent negative stock
-                        : product
-                )
-            );
-            // Optionally, dispatch the updated cart or product data
-            dispatch({ type: "get_cart", payload: response.data.cart.products });
-        } catch (err) {
-            console.error("Error adding product to cart:", err.message);
-            dispatch({
-                type: "add_error",
-                payload: "Failed to add product to cart. Please try again.",
-            });
-        }
+//             setProducts((prevProducts) =>
+//                 prevProducts.map((product) =>
+//                     product.name === productName
+//                         ? { ...product, stock: Math.max(0, product.stock - 1) } // Prevent negative stock
+//                         : product
+//                 )
+//             );
+//             // Optionally, dispatch the updated cart or product data
+//             dispatch({ type: "get_cart", payload: response.data.cart.products });
+//         } catch (err) {
+//             console.error("Error adding product to cart:", err.message);
+//             dispatch({
+//                 type: "add_error",
+//                 payload: "Failed to add product to cart. Please try again.",
+//             });
+//         }
+//     };
+// };
+const addToCart = (dispatch) => {
+    return async (productName) => {
+      try {
+        const token = await AsyncStorage.getItem("token");
+        if (!token) throw new Error("No token found");
+  
+        const response = await trackerApi.post(
+          "/add-to-cart",
+          { productName },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+  
+        console.log("Product added to cart:", response.data);
+  
+        dispatch({ type: "get_cart", payload: response.data.cart.products });
+      } catch (err) {
+        console.error("Error adding product to cart:", err.message);
+        dispatch({
+          type: "add_error",
+          payload: "Failed to add product to cart. Please try again.",
+        });
+      }
     };
-};
+  };
+  
 
 
 //Update amount for store 
@@ -712,32 +741,73 @@ const chatpage = (dispatch) => {
 //get meal plan for the user
 const getMealPlan = (dispatch) => {
     return async () => {
-        try{
-            const token = await AsyncStorage.getItem("token");
-            if(!token){
-                throw new Error("No token found");
-            }
-            const response = await trackerApi.get(
-                "getMealPlan",{
-                    headers:{
-                        Authorization:`Bearer ${token}`,
-                    },
-                });
-                console.log("✅ Fetched meal plan:", response.data);
-                dispatch({
-                    type: "getMealPlan", // You'll need to handle this in your reducer
-                    payload: response.data,
-                  });
-        }catch (err) {
-            console.error("❌ Error fetching meal plan:", err.message);
-            dispatch({
-              type: "add_error",
-              payload: "Failed to fetch your meal plan.",
-            });
+      try {
+        const token = await AsyncStorage.getItem("token");
+        if (!token) {
+          throw new Error("No token found");
+        }
+  
+        const response = await trackerApi.get("getMealPlan", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        console.log("✅ Fetched meal plan:", response.data);
+  
+        dispatch({
+          type: "getMealPlan",
+          payload: response.data,
+        });
+  
+      } catch (err) {
+        if (err.response && err.response.status === 400) {
+          console.log("ℹ️ No meal plan found for user");
+          dispatch({
+            type: "getMealPlan",
+            payload: null, // this tells the UI: user has no meal plan yet
+          });
+        } else {
+          console.error("❌ Error fetching meal plan:", err.message);
+          dispatch({
+            type: "add_error",
+            payload: "Failed to fetch your meal plan.",
+          });
+        }
+      }
+    };
+  };
+  
 
-        };
-    }
-}
+
+// const getMealPlan = (dispatch) => {
+//     return async () => {
+//         try{
+//             const token = await AsyncStorage.getItem("token");
+//             if(!token){
+//                 throw new Error("No token found");
+//             }
+//             const response = await trackerApi.get(
+//                 "getMealPlan",{
+//                     headers:{
+//                         Authorization:`Bearer ${token}`,
+//                     },
+//                 });
+//                 console.log("✅ Fetched meal plan:", response.data);
+//                 dispatch({
+//                     type: "getMealPlan", // You'll need to handle this in your reducer
+//                     payload: response.data,
+//                   });
+//         }catch (err) {
+//             console.error("❌ Error fetching meal plan:", err.message);
+//             dispatch({
+//               type: "add_error",
+//               payload: "Failed to fetch your meal plan.",
+//             });
+
+//         };
+//     }
+// }
 
 export const { Provider, Context } = createDataContext(
   authReducer,

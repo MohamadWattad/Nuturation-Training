@@ -55,9 +55,10 @@ const ChestWorkoutPageScreen = () => {
 
             <TouchableOpacity
               style={styles.addButton}
-              onPress={() => {
-                AddExercise(item._id);
+              onPress={async() => {
+                await AddExercise(item._id);
                 Alert.alert("✅ Added!", "This exercise was added to your list.");
+                await getVideo("Chest")
               }}
             >
               <Text style={styles.addButtonText}>Add to your list</Text>

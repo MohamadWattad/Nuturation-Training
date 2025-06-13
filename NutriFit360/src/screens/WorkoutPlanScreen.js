@@ -15,12 +15,25 @@ const FILTERS = ["All", "Chest", "Back", "Shoulder", "Leg", "Biceps", "Triceps",
 const WorkoutPlanScreen = () => {
   const { state, getWorkoutPlan, deleteExercise } = useContext(AuthContext);
   const [selectedFilter, setSelectedFilter] = useState("All");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getWorkoutPlan();
+    loadWorkoutPlan();
   }, []);
 
-  if (!Array.isArray(state.details)) {
+  const loadWorkoutPlan = async () => {
+    setLoading(true);
+    await getWorkoutPlan();
+    setLoading(false);
+  };
+
+  const handleDelete = async (exerciseId) => {
+    await deleteExercise(exerciseId);
+    Alert.alert("Deleted", "The exercise was removed from your plan.");
+    await loadWorkoutPlan(); // Refresh the plan
+  };
+
+  if (loading || !Array.isArray(state.details)) {
     return (
       <View style={styles.container}>
         <Text style={styles.loadingText}>Loading workout plan...</Text>
@@ -34,11 +47,6 @@ const WorkoutPlanScreen = () => {
     selectedFilter === "All"
       ? allExercises
       : allExercises.filter((exercise) => exercise.muscleGroup === selectedFilter);
-
-  const handleDelete = (exerciseId) => {
-    deleteExercise(exerciseId);
-    Alert.alert("Deleted", "The exercise was removed from your plan.");
-  };
 
   const renderFilter = (filter) => (
     <TouchableOpacity

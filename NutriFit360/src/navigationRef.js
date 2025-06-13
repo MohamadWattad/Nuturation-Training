@@ -1,17 +1,19 @@
-import { NavigationActions } from "react-navigation";
+// src/navigationRef.js
+import { NavigationActions } from 'react-navigation';
 
 let navigator;
 
 export const setNavigator = (nav) => {
-    navigator = nav;
+  navigator = nav;
 };
 
-
-export const navigate = (routeName , params) => { //params === information like email, password ...
+export const navigate = (routeName, params) => {
+  if (navigator) {
     navigator.dispatch(
-        NavigationActions.navigate({
-            routeName:routeName,
-            params:params
-        })
+      NavigationActions.navigate({
+        routeName,
+        params,
+      })
     );
+  }
 };

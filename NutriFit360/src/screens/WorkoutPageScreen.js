@@ -28,42 +28,43 @@ const workouts = [
     title: "Shoulder Workout",
     description: "Strengthen shoulder muscles.",
     thumbnail: "https://exercise.co.uk/wp-content/uploads/2023/02/6-Move-Shoulder-workout-Main.jpg",
-    route: "LegWorkoutPage", // Unique route for this workout
+    route: "ShoulderWorkout", // Unique route for this workout
     },
   {
     id: "4",
     title: "Leg Workout",
     description: "Strengthen leg muscles.",
     thumbnail: "https://cdn.shopify.com/s/files/1/1497/9682/files/Dumbbell_Lunges.jpg",
-    route: "LegWorkoutPage", // Unique route for this workout
+    route: "LegWorkout", // Unique route for this workout
   },
   {
     id: "5",
     title: "Biceps Workout",
     description: "Improve strength and endurance.",
-    thumbnail: "https://www.bodybuilding.com/images/2018/august/3-moves-to-complete-your-biceps-header-830x467.jpg",
-    route:"",
+    // thumbnail: "https://www.bodybuilding.com/images/2018/august/3-moves-to-complete-your-biceps-header-830x467.jpg",
+    thumbnail: "https://hips.hearstapps.com/hmg-prod/images/fitness-man-is-sitting-in-a-gym-and-flexing-muscles-royalty-free-image-1694520015.jpg?crop=1.00xw:1.00xh;0,0&resize=1200:*",
+    route:"BicepsWorkout",
 },
 {
     id: "6",
     title: "Triceps Workout",
     description: "Improve strength and endurance.",
     thumbnail: "https://row.gymshark.com/_next/image?url=https%3A%2F%2Fimages.ctfassets.net%2F8urtyqugdt2l%2F4nEcHjaC1BCwUSmxyTAj9U%2F07d5073be1a2041adde62059bb6ce258%2Fdesktop-tricep-exercises.jpg&w=2234&q=85",
-    route:"",
+    route:"TricepsWorkout",
 },
 {
     id: "7",
     title: "Abs Workout",
     description: "Tone and strengthen your core.",
     thumbnail: "https://hips.hearstapps.com/hmg-prod/images/young-muscular-build-athlete-exercising-strength-in-royalty-free-image-1706546541.jpg?crop=1.00xw:0.752xh;0,0.142xh&resize=1200:*",
-    route:"",
+    route:"AbsWorkout",
   },
   {
     id: "8",
     title: "Fat Burning Cardio",
     description: "Burn calories and lose fat.",
     thumbnail: "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2022/12/cardio-or-weights-first-scaled.jpg?w=2560&ssl=1",
-    route:"",
+    route:"FatWorkout",
   },
 ];
 

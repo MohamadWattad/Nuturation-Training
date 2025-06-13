@@ -352,82 +352,254 @@ router.delete('/recipes' , requireAuth , async(req,res)=>{
 });
 
 // Get Cart
+// router.get('/cart', requireAuth, async (req, res) => {
+//   try {
+//     const { productName } = req.query;
+//     const cart = await Cart.findOne({ userId: req.user._id });
+
+//     if (!cart || cart.products.length === 0) {
+//       return res.status(200).send({
+//         message: 'Your cart is empty',
+//         products: [],
+//         totalPrice: 0
+//       });
+//     }
+
+//     let products = cart.products;
+
+//     // Filter by name if provided
+//     if (productName) {
+//       products = products.filter(product =>
+//         product.name.toLowerCase().includes(productName.toLowerCase())
+//       );
+
+//       if (products.length === 0) {
+//         return res.status(404).send({
+//           message: `No products found in the cart with the name: ${productName}`,
+//         });
+//       }
+//     }
+
+//     // Calculate total per item and overall total
+//     let totalPrice = 0;
+//     const updatedProducts = products.map(product => {
+//       const itemTotal = product.price * product.quantity;
+//       totalPrice += itemTotal;
+
+//       return {
+//         ...product._doc, // keep _id, name, price, quantity, image
+//         total: itemTotal
+//       };
+//     });
+
+//     res.status(200).send({
+//       message: 'Cart retrieved successfully',
+//       products: updatedProducts,
+//       totalPrice: totalPrice
+//     });
+
+//   } catch (err) {
+//     console.error('Error fetching cart items:', err.message);
+//     res.status(500).send({ error: 'Failed to fetch cart items' });
+//   }
+// });
+// router.get('/cart', requireAuth, async (req, res) => {
+//   try {
+//     const { productName } = req.query;
+
+//     // Populate products from Product collection
+//     const cart = await Cart.findOne({ userId: req.user._id }).populate('products.productId');
+
+//     if (!cart || cart.products.length === 0) {
+//       return res.status(200).send({
+//         message: 'Your cart is empty',
+//         products: [],
+//         totalPrice: 0
+//       });
+//     }
+
+//     let products = cart.products;
+
+//     // Filter by product name if query is passed
+//     if (productName) {
+//       products = products.filter(item =>
+//         item.productId.name.toLowerCase().includes(productName.toLowerCase())
+//       );
+
+//       if (products.length === 0) {
+//         return res.status(404).send({
+//           message: `No products found in the cart with the name: ${productName}`
+//         });
+//       }
+//     }
+
+//     let totalPrice = 0;
+
+//     // Build response array
+//     const updatedProducts = products.map(item => {
+//       const product = item.productId;
+//       const itemTotal = product.price * item.quantity;
+//       totalPrice += itemTotal;
+
+//       return {
+//         _id: product._id,
+//         name: product.name,
+//         image: product.image,
+//         price: product.price,
+//         quantity: item.quantity,
+//         total: itemTotal
+//       };
+//     });
+
+//     res.status(200).send({
+//       message: 'Cart retrieved successfully',
+//       products: updatedProducts,
+//       totalPrice: totalPrice
+//     });
+//   } catch (err) {
+//     console.error('Error fetching cart items:', err.message);
+//     res.status(500).send({ error: 'Failed to fetch cart items' });
+//   }
+// });
 router.get('/cart', requireAuth, async (req, res) => {
     try {
-        const { productName } = req.query;
-        const cart = await Cart.findOne({ userId: req.user._id });
-
-        if (!cart || cart.products.length === 0) {
-            return res.status(200).send({
-                message: 'Your cart is empty',
-                products: [],
-                totalPrice:0
-            });
-        }
-
-        let products = cart.products;
-        let total = cart.price;
-        if (productName) {
-            products = products.filter((product) =>
-                product.name.toLowerCase().includes(productName.toLowerCase())
-                
-                
-            );
-
-            if (products.length === 0) {
-                return res.status(404).send({
-                    message: `No products found in the cart with the name: ${productName}`,
-                });
-            }
-        }
-
-        res.status(200).send({
-            message: 'Cart retrieved successfully',
-            products,
-            
+      const { productName } = req.query;
+      const cart = await Cart.findOne({ userId: req.user._id });
+  
+      if (!cart || cart.products.length === 0) {
+        return res.status(200).send({
+          message: 'Your cart is empty',
+          products: [],
+          totalPrice: 0
         });
+      }
+  
+      let products = cart.products;
+  
+      if (productName) {
+        products = products.filter((product) =>
+          product.name.toLowerCase().includes(productName.toLowerCase())
+        );
+  
+        if (products.length === 0) {
+          return res.status(404).send({
+            message: `No products found in the cart with the name: ${productName}`,
+          });
+        }
+      }
+  
+      let totalPrice = 0;
+  
+      const updatedProducts = products.map(product => {
+        const itemTotal = product.price * product.quantity;
+        totalPrice += itemTotal;
+  
+        return {
+          ...product._doc,
+          total: itemTotal
+        };
+      });
+  
+      res.status(200).send({
+        message: 'Cart retrieved successfully',
+        products: updatedProducts,
+        totalPrice
+      });
     } catch (err) {
-        console.error('Error fetching cart items:', err.message);
-        res.status(500).send({ error: 'Failed to fetch cart items' });
+      console.error('Error fetching cart items:', err);
+      res.status(500).send({ error: 'Failed to fetch cart items' });
     }
-});
+  });
+  
 
 // Add to Cart
 router.post('/add-to-cart', requireAuth, async (req, res) => {
     const { productName } = req.body;
+  
     try {
-        const product = await Products.findOne({ name: productName });
-        if (!product) {
-            return res.status(404).send({ error: 'Product not found' });
+      const product = await Products.findOne({ name: productName });
+      if (!product) {
+        return res.status(404).send({ error: 'Product not found' });
+      }
+  
+      if (product.stock <= 0) {
+        return res.status(400).send({ error: 'Out of stock' });
+      }
+  
+      let cart = await Cart.findOne({ userId: req.user._id });
+      if (!cart) {
+        cart = new Cart({ userId: req.user._id, products: [] });
+      }
+  
+      const existingProduct = cart.products.find(p => p.name === product.name);
+  
+      if (existingProduct) {
+        existingProduct.quantity += 1;
+  
+        // ✅ Ensure price is set (fix for old cart items)
+        if (!existingProduct.price) {
+          existingProduct.price = product.price;
         }
-        if (product.stock <= 0) {
-            return res.status(400).send({ error: 'Out of stock' });
-        }
-
-        let cart = await Cart.findOne({ userId: req.user._id });
-        if (!cart) {
-            cart = new Cart({ userId: req.user._id, products: [] });
-        }
-        const existingProduct = cart.products.find((p) => p.name === product.name);
-        if (existingProduct) {
-            existingProduct.quantity += 1;
-        } else {
-            cart.products.push({
-                name: product.name,
-                image: product.image,
-                price:product.price,
-                quantity: 1,
-            });
-        }
-        product.stock -= 1;
-        await product.save();
-        await cart.save();
-        res.status(200).send({ message: 'Product added to cart successfully', cart });
+      } else {
+        cart.products.push({
+          name: product.name,
+          image: product.image,
+          price: product.price,  // ✅ Add price when inserting
+          quantity: 1,
+        });
+      }
+  
+      // Update product stock
+      product.stock -= 1;
+      await product.save();
+  
+      await cart.save();
+  
+      res.status(200).send({
+        message: 'Product added to cart successfully',
+        cart,
+      });
     } catch (error) {
-        console.error('Error adding product to cart:', error.message);
-        res.status(500).send({ error: 'Failed to add product to cart' });
+      console.error('Error adding product to cart:', error);
+      res.status(500).send({ error: 'Failed to add product to cart' });
     }
-});
+  });
+  
+// router.post('/add-to-cart', requireAuth, async (req, res) => {
+//     const { productName } = req.body;
+//     try {
+//         const product = await Products.findOne({ name: productName });
+//         if (!product) {
+//             return res.status(404).send({ error: 'Product not found' });
+//         }
+//         if (product.stock <= 0) {
+//             return res.status(400).send({ error: 'Out of stock' });
+//         }
+
+//         let cart = await Cart.findOne({ userId: req.user._id });
+//         if (!cart) {
+//             cart = new Cart({ userId: req.user._id, products: [] });
+//         }
+//         const existingProduct = cart.products.find((p) => p.name === product.name);
+//         if (existingProduct) {
+//             existingProduct.quantity += 1;
+//         } else {
+//             cart.products.push({
+//                 name: product.name,
+//                 image: product.image,
+//                 price:product.price,
+//                 quantity: 1,
+//             });
+//         }
+//         product.stock -= 1;
+//         await product.save();
+//         await cart.save();
+//         res.status(200).send({ message: 'Product added to cart successfully', cart });
+//     } catch (error) {
+//         console.error('Error adding product to cart:', error.message);
+//         res.status(500).send({ error: 'Failed to add product to cart' });
+//     }
+// });
 
 //update the amount of the product
 router.put('/update-stock', requireAuth , async(req,res) => {

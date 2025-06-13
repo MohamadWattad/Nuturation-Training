@@ -1,3 +1,4 @@
+// Enhanced ProfilePageScreen with gender/goal/activity as stat boxes
 import React, { useContext, useEffect, useState } from "react";
 import {
     Text,
@@ -5,12 +6,12 @@ import {
     StyleSheet,
     ActivityIndicator,
     ScrollView,
-    ImageBackground,
+    Image,
 } from "react-native";
 import { Button } from "react-native-elements";
 import { Context as nameContext } from "../context/AuthContext";
 import Spacer from "../components/Spacer";
-import background from "../../assets/Page1.jpeg"; // Background image
+// import avatarImage from "../../assets/avatar.png";
 
 const ProfilePageScreen = ({ navigation }) => {
     const { state, getname, getdetails } = useContext(nameContext);
@@ -24,152 +25,95 @@ const ProfilePageScreen = ({ navigation }) => {
             setIsLoading(false);
         };
         fetchName();
-        console.log("State Details:", state.details);
     }, []);
 
     return (
-        <ImageBackground source={background} style={styles.backgroundImage}>
-            <View style={styles.overlay}>
-                <View style={styles.container}>
-                    {isLoading ? (
-                        <ActivityIndicator size="large" color="#ffffff" />
-                    ) : (
-                        <ScrollView contentContainerStyle={styles.contentContainer}>
-                            {/* Welcome Text */}
-                            <Text style={styles.welcomeText}>
-                                Welcome to your Profile, {state.userName}!
-                            </Text>
-
-                            {/* Profile Details */}
-                            <View style={styles.detailsContainer}>
-                                <Text style={styles.detailItem}>
-                                    <Text style={styles.label}>Age: </Text>
-                                    {state.details.age}
-                                </Text>
-                                <Text style={styles.detailItem}>
-                                    <Text style={styles.label}>Gender: </Text>
-                                    {state.details.gender}
-                                </Text>
-                                <Text style={styles.detailItem}>
-                                    <Text style={styles.label}>Height: </Text>
-                                    {state.details.height} cm
-                                </Text>
-                                <Text style={styles.detailItem}>
-                                    <Text style={styles.label}>Weight: </Text>
-                                    {state.details.weight} kg
-                                </Text>
-                                <Text style={styles.detailItem}>
-                                    <Text style={styles.label}>Goal: </Text>
-                                    {state.details.goal}
-                                </Text>
-                                <Text style={styles.detailItem}>
-                                    <Text style={styles.label}>Activity Level: </Text>
-                                    {state.details.activityLevel}
-                                </Text>
-                            </View>
-
-                            {/* Buttons */}
-                            <View style={styles.buttonContainer}>
-                                <Button
-                                    title="Home Page"
-                                    buttonStyle={styles.button}
-                                    titleStyle={styles.buttonText}
-                                    onPress={() => navigation.navigate("HomePage")}
-                                />
-                                <Spacer />
-                                <Button
-                                    title="Update Profile"
-                                    buttonStyle={styles.button}
-                                    titleStyle={styles.buttonText}
-                                    onPress={() => navigation.navigate("UpdateProfile")}
-                                />
-                                <Spacer />
-                                <Button
-                                    title="BMI Calculator"
-                                    buttonStyle={styles.button}
-                                    titleStyle={styles.buttonText}
-                                    onPress={() => navigation.navigate("BMI")}
-                                />
-                                <Button
-                                    title="Meal Plan"
-                                    buttonStyle={styles.button}
-                                    titleStyle={styles.buttonText}
-                                    onPress={() => navigation.navigate("MealPlan")}
-                                />
-                                 <Button
-                                    title="Workout Plan"
-                                    buttonStyle={styles.button}
-                                    titleStyle={styles.buttonText}
-                                    onPress={() => navigation.navigate("WorkoutPlan")}
-                                />
-                            </View>
-                        </ScrollView>
-                    )}
-                </View>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <View style={styles.headerContainer}>
+                {/* <Image source={avatarImage} style={styles.avatar} /> */}
+                <Text style={styles.nameText}>{state.userName}</Text>
+                <Text style={styles.statusText}>Living a healthy lifestyle</Text>
             </View>
-        </ImageBackground>
+
+            <View style={styles.statsContainer}>
+                <View style={styles.statBox}><Text style={styles.statNumber}>{state.details.weight}kg</Text><Text style={styles.statLabel}>Weight</Text></View>
+                <View style={styles.statBox}><Text style={styles.statNumber}>{state.details.height}cm</Text><Text style={styles.statLabel}>Height</Text></View>
+                <View style={styles.statBox}><Text style={styles.statNumber}>{state.details.age}</Text><Text style={styles.statLabel}>Age</Text></View>
+            </View>
+
+            <View style={styles.statsContainer}>
+                <View style={styles.statBox}><Text style={styles.statNumber}>{state.details.gender}</Text><Text style={styles.statLabel}>Gender</Text></View>
+                <View style={styles.statBox}><Text style={styles.statNumber}>{state.details.goal}</Text><Text style={styles.statLabel}>Goal</Text></View>
+                <View style={styles.statBox}><Text style={styles.statNumber}>{state.details.activityLevel}</Text><Text style={styles.statLabel}>Activity</Text></View>
+            </View>
+
+            <Spacer />
+
+            <View style={styles.buttonGroup}>
+                <Button title="Update Profile" buttonStyle={styles.button} onPress={() => navigation.navigate("UpdateProfile")} />
+                <Button title="BMI Calculator" buttonStyle={styles.button} onPress={() => navigation.navigate("BMI")} />
+                <Button title="Meal Plan" buttonStyle={styles.button} onPress={() => navigation.navigate("MealPlan")} />
+                <Button title="Workout Plan" buttonStyle={styles.button} onPress={() => navigation.navigate("WorkoutPlan")} />
+            </View>
+        </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
-    backgroundImage: {
-        flex: 1,
-        resizeMode: "cover",
+    scrollContainer: {
+        backgroundColor: "#fff",
+        paddingVertical: 20,
+        alignItems: "center",
     },
-    overlay: {
-        flex: 1,
-        backgroundColor: "rgba(0, 0, 0, 0.6)", // Slight dark overlay
+    headerContainer: {
+        alignItems: "center",
+        marginBottom: 20,
     },
-    container: {
-        flex: 1,
-        padding: 20,
+    avatar: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        marginBottom: 10,
     },
-    contentContainer: {
-        flexGrow: 1,
-        justifyContent: "center",
-    },
-    welcomeText: {
+    nameText: {
         fontSize: 24,
         fontWeight: "bold",
-        textAlign: "center",
-        color: "#fff",
-        marginBottom: 20,
-    },
-    detailsContainer: {
-        backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white
-        padding: 20,
-        borderRadius: 10,
-        shadowColor: "#000",
-        shadowOpacity: 0.2,
-        shadowOffset: { width: 0, height: 4 },
-        elevation: 5,
-        marginBottom: 20,
-    },
-    detailItem: {
-        fontSize: 18,
-        marginBottom: 10,
         color: "#333",
     },
-    label: {
-        fontWeight: "bold",
-        color: "#000",
+    statusText: {
+        fontSize: 14,
+        color: "#777",
     },
-    buttonContainer: {
-        marginTop: 20,
+    statsContainer: {
+        flexDirection: "row",
+        justifyContent: "space-around",
+        width: "100%",
+        marginVertical: 10,
+    },
+    statBox: {
         alignItems: "center",
+        flex: 1,
+    },
+    statNumber: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: "#4CAF50",
+        textAlign: "center",
+    },
+    statLabel: {
+        fontSize: 12,
+        color: "#777",
+        textAlign: "center",
+    },
+    buttonGroup: {
+        width: "90%",
+        marginTop: 20,
     },
     button: {
         backgroundColor: "#4CAF50",
-        paddingVertical: 15,
-        paddingHorizontal: 30,
+        marginVertical: 8,
         borderRadius: 25,
-        width: "80%",
-        marginVertical: 10,
-    },
-    buttonText: {
-        fontSize: 16,
-        fontWeight: "bold",
-        color: "#fff",
+        paddingVertical: 12,
     },
 });
 

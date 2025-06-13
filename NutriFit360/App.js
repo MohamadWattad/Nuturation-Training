@@ -1,5 +1,6 @@
 import React from "react";
 import { createAppContainer , createSwitchNavigator } from "react-navigation";
+import { LogBox } from "react-native";
 import { createStackNavigator } from "react-navigation-stack";
 // import { createMaterialBottomTabNavigator } from "react-navigation-material-bottom-tabs";
 import SignupScreen from "./src/screens/SignupScreen";
@@ -33,7 +34,18 @@ import WorkoutPlanScreen from "./src/screens/WorkoutPlanScreen";
 import AddMealPageScreen from "./src/screens/AddMealPageScreen";
 import DeleteMealPageScreen from "./src/screens/DeleteMealPageScreen";
 import MealsPageScreen1 from "./src/screens/MealsPageScreen1";
+import BarcodeScannerScreen from "./src/screens/BarcodeScannerScreen";
+import ShoulderWorkoutPageScreen from "./src/screens/ShoulderWorkoutPageScreen";
+import LegWorkoutPageScreen from "./src/screens/LegWorkoutPageScreen";
+import BicepsWorkoutPageScreen from "./src/screens/BicepsWorkoutPageScreen";
+import TricepsWorkoutPageScreen from "./src/screens/TricepsWorkoutPageScreen";
+import AbsWorkoutPageScreen from "./src/screens/AbsWorkoutPageScreen";
+import FatWorkoutPageScreen from "./src/screens/FatWorkoutPageScreen";
 
+
+LogBox.ignoreLogs([
+  'TextElement: Support for defaultProps will be removed from function components',
+]);
 const SwitchNavigator = createSwitchNavigator({
   ResolveAuth:ResolveAuthScreen,
   loginFlow:createStackNavigator({
@@ -64,6 +76,15 @@ const SwitchNavigator = createSwitchNavigator({
     addMeal:AddMealPageScreen,
     deleteMeal:DeleteMealPageScreen,
     MealsPage:MealsPageScreen1,
+    BarcodeScanner:BarcodeScannerScreen,
+    ShoulderWorkout:ShoulderWorkoutPageScreen,
+    LegWorkout:LegWorkoutPageScreen,
+    BicepsWorkout:BicepsWorkoutPageScreen,
+    TricepsWorkout:TricepsWorkoutPageScreen,
+    AbsWorkout:AbsWorkoutPageScreen,
+    FatWorkout:FatWorkoutPageScreen,
+
+    
 
 
   }),
