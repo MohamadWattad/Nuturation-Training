@@ -16,7 +16,7 @@ const TricepsWorkoutPageScreen = () => {
   const { state, getVideo, AddExercise } = useContext(AuthContext);
 
   useEffect(() => {
-    getVideo("Chest");
+    getVideo("Triceps");
   }, []);
 
   if (!state.details) {
@@ -40,7 +40,7 @@ const TricepsWorkoutPageScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Chest Workout Videos</Text>
+      <Text style={styles.title}>Tricpes Workout Videos</Text>
       <FlatList
         data={state.details}
         keyExtractor={(item) => item._id.toString()}
@@ -58,7 +58,7 @@ const TricepsWorkoutPageScreen = () => {
               onPress={async() => {
                 await AddExercise(item._id);
                 Alert.alert("✅ Added!", "This exercise was added to your list.");
-                await getVideo("Chest")
+                await getVideo("Triceps")
               }}
             >
               <Text style={styles.addButtonText}>Add to your list</Text>

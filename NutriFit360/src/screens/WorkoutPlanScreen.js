@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Context as AuthContext } from "../context/AuthContext";
 
-const FILTERS = ["All", "Chest", "Back", "Shoulder", "Leg", "Biceps", "Triceps", "Abs"];
+const FILTERS = ["All", "Chest", "Back", "Shoulders", "Legs", "Biceps", "Triceps", "Abs" ,"Cardio"];
 
 const WorkoutPlanScreen = () => {
   const { state, getWorkoutPlan, deleteExercise } = useContext(AuthContext);

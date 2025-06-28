@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef } from "react";
 import {
   View,
   Text,
@@ -15,13 +15,19 @@ const ChatPageScreen = () => {
   const { state, chatpage } = useContext(AuthContext); // Access context
   const [input, setInput] = useState(""); // User input
   const [loading, setLoading] = useState(false);
+  const flatListRef = useRef(null); // 👈 Reference for scrolling
 
-  const handleSend = async() => {
+  const handleSend = async () => {
     if (input.trim()) {
       setLoading(true);
       await chatpage(input); // Call the context function
       setLoading(false);
       setInput(""); // Clear the input field
+
+      // 👇 Scroll to bottom after rendering the new message
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
     }
   };
 
@@ -42,10 +48,15 @@ const ChatPageScreen = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <FlatList
+        ref={flatListRef} // 👈 Add ref here
         data={state.chatHistory}
         renderItem={renderMessage}
         keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={styles.chatList}
+        extraData={state.chatHistory} // 👈 Required to re-render on update
+        onContentSizeChange={() =>
+          flatListRef.current?.scrollToEnd({ animated: true })
+        }
       />
       <View style={styles.inputContainer}>
         <TextInput
@@ -54,7 +65,7 @@ const ChatPageScreen = () => {
           value={input}
           onChangeText={setInput}
         />
-        <Button title="Send" onPress={handleSend} />
+        <Button title={loading ? "Sending..." : "Send"} onPress={handleSend} disabled={loading} />
       </View>
     </KeyboardAvoidingView>
   );
@@ -72,11 +83,11 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     padding: 10,
     borderRadius: 10,
+    maxWidth: "80%",
   },
   userMessage: {
     alignSelf: "flex-end",
     backgroundColor: "#007AFF",
-    color: "white",
   },
   botMessage: {
     alignSelf: "flex-start",

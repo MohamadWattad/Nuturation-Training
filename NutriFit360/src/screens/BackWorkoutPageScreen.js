@@ -1,13 +1,22 @@
 import React, { useEffect, useContext } from "react";
-import { StyleSheet, View, Text, FlatList, Image, ActivityIndicator  , TouchableOpacity, Alert} from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  FlatList,
+  Image,
+  ActivityIndicator,
+  TouchableOpacity,
+  Alert,
+  Dimensions,
+} from "react-native";
 import { Context as AuthContext } from "../context/AuthContext";
-import { Dimensions } from "react-native";
 
-const BackWorkoutPageScreen = () => {
-  const { state, getVideo,AddExercise } = useContext(AuthContext);
+const FatWorkoutPageScreen = () => {
+  const { state, getVideo, AddExercise } = useContext(AuthContext);
 
   useEffect(() => {
-    getVideo("Back"); 
+    getVideo("Back");
   }, []);
 
   if (!state.details) {
@@ -22,14 +31,16 @@ const BackWorkoutPageScreen = () => {
   if (state.details.length === 0) {
     return (
       <View style={styles.container}>
-        <Text style={styles.loadingText}>No videos found for Chest workout!</Text>
+        <Text style={styles.loadingText}>
+          No videos found for Chest workout!
+        </Text>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Chest Workout Videos</Text>
+      <Text style={styles.title}>Back Workout Videos</Text>
       <FlatList
         data={state.details}
         keyExtractor={(item) => item._id.toString()}
@@ -37,13 +48,20 @@ const BackWorkoutPageScreen = () => {
           <View style={styles.card}>
             <Image source={{ uri: item.gifUrl }} style={styles.thumbnail} />
             <Text style={styles.videoTitle}>{item.title}</Text>
-            <Text style={styles.description}>{item.description}</Text>
+            {item.description ? (
+              <Text style={styles.description}>{item.description}</Text>
+            ) : null}
             <Text style={styles.duration}>Duration: {item.duration}</Text>
-            <TouchableOpacity onPress={() => {
-              AddExercise(item._id);
-              Alert.alert("Added!", "This exercise was added to your list.");
-            }}>
-              <Text>+</Text>
+
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={async() => {
+                await AddExercise(item._id);
+                Alert.alert("✅ Added!", "This exercise was added to your list.");
+                await getVideo("Back")
+              }}
+            >
+              <Text style={styles.addButtonText}>Add to your list</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -51,6 +69,7 @@ const BackWorkoutPageScreen = () => {
     </View>
   );
 };
+
 const { width } = Dimensions.get("window");
 
 const styles = StyleSheet.create({
@@ -75,7 +94,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 3,
-    width: width * 0.9, // Adjust width to 90% of the screen
+    width: width * 0.9,
     alignSelf: "center",
   },
   thumbnail: {
@@ -83,6 +102,7 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 10,
     marginBottom: 10,
+    resizeMode: "cover",
   },
   videoTitle: {
     fontSize: 18,
@@ -102,6 +122,18 @@ const styles = StyleSheet.create({
     color: "#777",
     textAlign: "center",
   },
+  addButton: {
+    marginTop: 10,
+    backgroundColor: "#007bff",
+    paddingVertical: 8,
+    borderRadius: 5,
+  },
+  addButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    textAlign: "center",
+    fontWeight: "bold",
+  },
   loadingText: {
     fontSize: 16,
     marginTop: 10,
@@ -110,4 +142,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BackWorkoutPageScreen;
+export default FatWorkoutPageScreen;
